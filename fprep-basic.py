@@ -4,7 +4,7 @@ import logging
 from urllib.request import urlopen
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-dowSymbols = ["SYF","GOOG"]
+dowSymbols = ["AAL","GOOG"]
 
 for i in range (0, len(dowSymbols)): #len(dowSymbols
   try:
