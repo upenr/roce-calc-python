@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 symbols = []
 
 try: #Basic API URL
-  url = 'https://financialmodelingprep.com/api/v3/stock/list?apikey=ac0e1f66b18bd6a8707a74c1071bb3d4'
+  url = 'https://financialmodelingprep.com/api/v3/stock/list?apikey=YOUR_API_KEY'
   headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'
   }#
