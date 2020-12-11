@@ -6,3 +6,8 @@ node_modules
 # Ignore files with extensions
 *.txt
 *.ods
+*.env
+*.xlsx
+
+# Just being cautious
+.env

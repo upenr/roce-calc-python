@@ -1,13 +1,31 @@
-## Extract list of companies that have data on Financial Modeling Prep (Fprep)
-1. Available in list_of_companies.py. This is code to return an array with all companies that have Financial Statement data on Financial Modeling Prep. 
+# My Python scripts to extract stock values from Financial Modeling Prep and other sources 🔍
+
+These are value investing related Python scripts I wrote to search and filter for stock-related metrics I like.
+
+## Working Python scripts relying on Financial Modeling Prep 
+
+- `fprep-basic` - Get started by making a basic call, view the output and extract a value you like
+- `fprep-roce_best` - Calculations for getting Return on Capital Employed (ROCE) of any company that meets a threshold along with other metrics like average ROCE over the years and my magic number to compute ROCE growth, with output sorted in descending order
+- `fprep-52week-low` - Identifies companies that are close to their 52 week lows, meeting a threshold, with output sorted from closest to low
+- `fprep-dcf-discount` - Identifies companies that are trading at a discount compared to their DCF-based intrinsic value, with output sorted in descending order
+- `list-of-companies` - Gets a list of companies that are available with Financial Modeling Prep
 
 ## Buy or Hold Strategy
-1. This Python script analyzes S&P 500 data from 1999 to early 2020 (supplied as a CSV file) and figures out if buying after a threshold (%) drop in the markets is better or if dollar cost averaging is better.
 
-## My Python scripts to calculate Return on Capital Employed (ROCE) of public companies using three different methods (May not work anymore, May 2020)
-1. By Mid-2020, Financial Modeling Prep curtailed free access to their APIs. Only 250 free requests per day. Therefore, this code may not work. To make it work, register and get a free API KEY, then append your URLs with the key. 
-2. Using data from Financial Modeling Prep - this used to work best. Gives ROCE values of any companies supplied as input. However, Financial Modeling Prep now has an inbuilt ROCE calculator, rendering this code unnecessary. 
+- `buy_or_hold` - This Python script analyzes S&P 500 data from 1999 to early 2020 (supplied as a CSV file) and figures out if buying after a threshold (%) drop in the markets is better or if dollar cost averaging is better.
 
-## Other Methods from Aug, 2019 (may not work anymore):
-1. By scraping Yahoo Finance with LXML
-2. By scraping Yahoo Finance with Beautiful Soup
+## Other Methods from Aug, 2019 (may be obsolete now):
+
+- Scraping Yahoo Finance with LXML (I have a working, published Android app on this if you're interested: https://play.google.com/store/apps/details?id=com.upen.rocecalculator)
+- Scraping Yahoo Finance with Beautiful Soup
+
+## Running Locally 💻
+
+- Clone this project, then run the Python scripts using the `python` command.
+
+## Built using 🧰
+
+- [Python](https://python.org/)
+- [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [LXML](https://lxml.de)
+- Data from [Financial Modeling Prep](https://financialmodelingprep.com) and [Yahoo Finance](https://finance.yahoo.com)
