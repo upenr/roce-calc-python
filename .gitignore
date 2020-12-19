@@ -8,6 +8,4 @@ node_modules
 *.ods
 *.env
 *.xlsx
-
-# Just being cautious
 .env
