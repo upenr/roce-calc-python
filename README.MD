@@ -4,7 +4,7 @@ These are value investing related Python scripts I wrote to search and filter fo
 
 ## Working Python scripts relying on Financial Modeling Prep 
 
-- `upendra-screen` - My screen based on Professor Kenneth Jeffrey Marshall's book [Good Stocks Cheap (https://www.amazon.com/Good-Stocks-Cheap-Confidence-Outperformance/dp/125983607X)
+- `upendra-screen` - My screen based on Professor Kenneth Jeffrey Marshall's book [Good Stocks Cheap](https://www.amazon.com/Good-Stocks-Cheap-Confidence-Outperformance/dp/125983607X)
 - `fprep-basic` - Get started by making a basic call, view the output and extract a value you like
 - `fprep-roce_best` - Calculations for getting Return on Capital Employed (ROCE) of any company that meets a threshold along with other metrics like average ROCE over the years and my magic number to compute ROCE growth, with output sorted in descending order
 - `fprep-52week-low` - Identifies companies that are close to their 52 week lows, meeting a threshold, with output sorted from closest to low
