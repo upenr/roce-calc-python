@@ -35,8 +35,8 @@ sys.stdout = Unbuffered(sys.stdout)
 init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-#Upen: Enter your list of symbols here
-mySymbols = ['MSFT', 'GOOG', 'CAT', 'INTC']
+# Upen: Enter your list of symbols here
+mySymbols = ['WFC', 'GOOG', 'MSFT']
 cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
               'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 roce_dict = {}
@@ -53,16 +53,16 @@ final_fcfroce_companies = []
 final_oiGrowth_companies = []
 final_fcfGrowth_companies = []
 final_bvGrowth_companies = []
-threshold_roce = 11  #Set your ROCE % threshold
-threshold_fcfroce = 8 #Set your FCFROCE % threshold
-inflation = 0.01 #Inflation set to 1%
+threshold_roce = 11  # Set your ROCE % threshold
+threshold_fcfroce = 8  # Set your FCFROCE % threshold
+inflation = 0.01  # Inflation set to 1%
+threshold_dte = 3  # Set your Debt-to-Equity threshold
 dte_dict = {}
 tbvg_dict = {}
 
 
-def kenmarshall_metrics(comp1, url1, url2, url3, url4, url5):
+def upendra_metrics(comp1, url1, url2, url3, url4, url5):
     try:
-        tbvg = 0  # Tangible Book Value growth TTM only
         dte = 0  # DebtToEquity TTM only
         n = 0
         m = 0
@@ -75,7 +75,6 @@ def kenmarshall_metrics(comp1, url1, url2, url3, url4, url5):
             allData.append(data)
         #print (allData)
 
-        # Both below
         # 1. Return on capital employed (ROCE) > 11% - Refer to the 'fprep-roce_best' program
         # 2. Free cash flow return on capital employed (FCFROCE) > 8%
         datesIncome = []
@@ -91,14 +90,10 @@ def kenmarshall_metrics(comp1, url1, url2, url3, url4, url5):
         n = 0
         m = 0
 
-        # for i in data['financials']:
         for key, value in allData[0].items():
             #print (key)
             if key == "financials":
-                tmp = value
-                # print("tmp:")
-                #print (tmp)
-                for lst_item in tmp:
+                for lst_item in value:
                     for key, value in lst_item.items():
                         #print('key: {} value: {}'.format(key, value))
                         if key == "date":
@@ -150,8 +145,7 @@ def kenmarshall_metrics(comp1, url1, url2, url3, url4, url5):
         m = len(fcf)
 
         if areEqual(datesIncome, datesBalance, n, m):
-            print(
-                "******************************Data available*******************************************" + "\n")
+            print("******************************************DATA AVAILABLE***************************************************")
             for i in range(0, (lambda: m, 'lambda: n')[m > n]()):
                 if i >= 10:
                     break
@@ -205,24 +199,24 @@ def kenmarshall_metrics(comp1, url1, url2, url3, url4, url5):
             print("Delta Operating Income data not available")
 
         print("Operating Income, Free Cash Flow, Book Value growths for last 5 years shown in the 3 lines below.")
-        print(oiGrowth[:5])
-        print(fcfGrowth[:5])
-        print(bvGrowth[:5])
-        if all(x > inflation for x in oiGrowth[:5]):  # Change 0.01 for threshold
+        print(" - ", oiGrowth[:5])
+        print(" - ", fcfGrowth[:5])
+        print(" - ", bvGrowth[:5])
+        # inflation is the name of my threshold
+        if all(x > inflation for x in oiGrowth[:5]):
             final_oiGrowth_companies.append(comp1)
         if all(x > inflation for x in fcfGrowth[:5]):
             final_fcfGrowth_companies.append(comp1)
         if all(x > inflation for x in bvGrowth[:5]):
             final_bvGrowth_companies.append(comp1)
 
-        """ if allData[4]: #Upen: Not calculating Shares Outstanding in this program. So, this bit is commented.
+        """ if allData[4]: #Upen: Not calculating Shares Outstanding in this program. So, this bit is commented out.
             sharesOut = allData[4][0]["sharesOutstanding"]
             print(
                 "The current number of shares outstanding is {0:.2f}.".format(
                     sharesOut
                 )
             )
-            
         else:
             print("An error occurred under items 3, 4 and 5: %s") % (data["error"]["description"]) """
         # 6. Growth in tangible book value per fully diluted share (ΔTBV/FDS) > Inflation% (say 3%)
@@ -239,20 +233,21 @@ def kenmarshall_metrics(comp1, url1, url2, url3, url4, url5):
                     allData[4][0]["tangibleBookValuePerShareTTM"]
                 )
             )
-            if dte <= 2:  # and discount1 < (threshold*100)
+            if dte <= threshold_dte:
                 dte_dict.setdefault(comp1, []).append(round(dte, 2))
         else:
             print("An error occurred under dte: %s") % (
                 data["error"]["description"])
 
-        print("******************************")
+        print("***********************************************************************************************************")
         request.close()
 
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        print(message)
+        print(template.format(type(ex).__name__, ex.args))
         traceback.print_exc()
+        print("***********************************************************************************************************")
+        pass
 
     return
 
@@ -304,8 +299,22 @@ def areEqual(arr1, arr2, n, m):
 
 for i in range(0, len(mySymbols)):
     try:
-        # API URLs
-        my_value_a = os.getenv("MY_VAR_A")
+        if i < 50:
+            my_value_a = os.getenv("MY_VAR_A")
+        elif i >= 50 and i < 100:
+            my_value_a = os.getenv("MY_VAR_B")
+        elif i >= 100 and i < 150:
+            my_value_a = os.getenv("MY_VAR_C")
+        elif i >= 150 and i < 200:
+            my_value_a = os.getenv("MY_VAR_D")
+        elif i >= 200 and i < 250:
+            my_value_a = os.getenv("MY_VAR_E")
+        elif i >= 250 and i < 300:
+            my_value_a = os.getenv("MY_VAR_F")
+        elif i >= 300 and i < 350:
+            my_value_a = os.getenv("MY_VAR_G")
+        else:
+            my_value_a = "demo"
         #my_value_a = "demo"
         url_is_y = (
             "https://financialmodelingprep.com/api/v3/financials/income-statement/"
@@ -346,9 +355,11 @@ for i in range(0, len(mySymbols)):
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36"
         }
-        print(mySymbols[i] + " Yearly:")
-        kenmarshall_metrics(mySymbols[i], url_is_y,
-                            url_bs_y, url_cfs_y, url_fg, url_metrics)
+        # print(i,'.',mySymbols[i],'Yearly:')
+        print("%d. %s Yearly:" % (i, mySymbols[i]))
+
+        upendra_metrics(mySymbols[i], url_is_y,
+                        url_bs_y, url_cfs_y, url_fg, url_metrics)
 
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
@@ -357,6 +368,7 @@ for i in range(0, len(mySymbols)):
         traceback.print_exc()
     continue
 # print output here
+print("\n*************************************************RESULTS***************************************************\n")
 print("List of companies meeting the ROCE threshold (11%): ")
 print(final_roce_companies)
 print("List of companies meeting the ROCE threshold (11%), and its average ROCE for last 5 years: ")
@@ -376,8 +388,8 @@ print(dte_dict)
 print("List of companies meeting 3, 4, 5 and 6 metrics shown in the 4 lines below.")
 mapper = {1: final_roce_companies, 2: final_fcfroce_companies, 3: final_oiGrowth_companies,
           4: final_fcfGrowth_companies, 5: final_bvGrowth_companies, 6: dte_dict}
-print(get_from_min_match(3))
-print(get_from_min_match(4))
-print(get_from_min_match(5))
-print(get_from_min_match(6))
-print("********************************************" + "\n")
+print(" - ", get_from_min_match(3))
+print(" - ", get_from_min_match(4))
+print(" - ", get_from_min_match(5))
+print(" - ", get_from_min_match(6))
+print("\n******************************************ENF OF RESULTS***************************************************\n")
