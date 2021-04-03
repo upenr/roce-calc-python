@@ -1,3 +1,4 @@
+from os import environ
 import requests
 import json
 import re
@@ -11,9 +12,8 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-from os import environ
 
-te = open("newsp500.txt", "a")  # File where you need to keep the logs
+te = open("cac40.txt", "a")  # File where you need to keep the logs
 
 
 class Unbuffered:
@@ -34,7 +34,9 @@ sys.stdout = Unbuffered(sys.stdout)
 init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-snpSymbols = ["PNW", "PXD"]
+snpSymbols = ['DGX', 'GOOG']
+cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
+              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 # dowSymbols = ['ALIM', 'AB', 'ATHM', 'BSVN', 'BSTC', 'CAMT', 'CHKP', 'CORT', 'ENTA', 'ENDP', 'EPM', 'FFIV', 'GRMN', 'GNTX', 'LANC', 'LOGI', 'MX', 'MPX', 'MGI', 'PETS', 'QNST', 'RMR', 'SWKS', 'SMMT', 'THC', 'TGI', 'YRCW', 'ZEAL']
 # snpSymbols = ['BSBR', 'BMO', 'CM', 'CNQ', 'COP', 'DAL', 'DFS', 'EC', 'ET', 'EPD', 'FOX', 'FOXA', 'GM', 'MU', 'MPLX', 'NEM', 'NTRS', 'PSX', 'PPL', 'RY', 'RCL', 'SNE', 'SO', 'SOLN', 'SLF', 'SYF', 'TRP', 'BNS', 'TD', 'USB', 'UAL', 'WBA']
 # snpSymbols = ['HDB','GOOG','MSFT']
@@ -75,7 +77,7 @@ def calc_roce(comp1, url, url2):
                         # print('key: {} value: {}'.format(key, value))
                         if key == "date":
                             datesIncome.append(value)
-                        elif key == "EBIT":
+                        elif key == "operatingIncome":
                             ebit.append(value)
                         elif key == "EPS":
                             eps.append(value)
@@ -222,7 +224,6 @@ for i in range(0, len(snpSymbols)):  # len(dowSymbols)
             + "?apikey="
             + my_value_a
         )
-        # url_is_y = 'https://finnhub.io/api/v1/stock/financials?symbol='+ snpSymbols[i] + '&statement=ic&freq=annual&token='
         url_bs_y = (
             "https://financialmodelingprep.com/api/v3/financials/balance-sheet-statement/"
             + snpSymbols[i]
@@ -309,13 +310,15 @@ final_companies = dict((k, v) for k, v in avg_dict.items() if v >= threshold)
 print("List of companies meeting the threshold: ")
 print(sorted(final_companies.items(), key=lambda x: x[1], reverse=True))
 print("List of companies meeting the threshold and whose data is available: ")
-kv = [(k, final_companies[k]) for k in data_available_companies if k in final_companies]
+kv = [(k, final_companies[k])
+      for k in data_available_companies if k in final_companies]
 lv = sorted(kv, key=lambda x: x[1], reverse=True)
 print(lv)
 print(
     "List of companies meeting the threshold, whose data is available and have positive EPS: "
 )
-kv = [(k, final_companies[k]) for k in positive_eps_companies if k in final_companies]
+kv = [(k, final_companies[k])
+      for k in positive_eps_companies if k in final_companies]
 lv = sorted(kv, key=lambda x: x[1], reverse=True)
 print(lv)
 print("Data unavailable companies: ")

@@ -3,10 +3,29 @@ import json
 import logging
 from urllib.request import urlopen
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
 from os import environ
+
+te = open("newCompList.txt", "a")  # File where you need to keep the logs
+
+
+class Unbuffered:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+        te.write(data)  # Write the data of stdout here to a text file as well
+
+    def flush(self):
+        pass
+
+
+sys.stdout = Unbuffered(sys.stdout)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

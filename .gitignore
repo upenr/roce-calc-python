@@ -2,10 +2,12 @@ Environment/
 
 # Ignore node_modules folder
 node_modules
+.vscode
 
 # Ignore files with extensions
 *.txt
 *.ods
 *.env
 *.xlsx
+*.json
 .env
