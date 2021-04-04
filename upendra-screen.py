@@ -36,8 +36,8 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here
-mySymbols = ['WFC', 'GOOG', 'MSFT']
-cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
+mySymbols = ['JPM']
+#cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
               'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 roce_dict = {}
 fcfroce_dict = {}
@@ -99,12 +99,19 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
                         if key == "date":
                             datesIncome.append(value)
                         elif key == "Operating Income":
+                            if (float(value) == 0.0):
+                                key = "Earnings before Tax"
+                            else:
+                                ebit.append(value)
+                        elif key == "Earnings before Tax":
+                            #print ("Using Earnings Before Tax instead of Operating Income. Maybe, this is a bank?")
                             ebit.append(value)
                         elif key == "EPS":
                             eps.append(value)
+
         #print (datesIncome)
-        #print ("EBIT: \n")
-        #print (ebit)
+        print("EBIT: \n")
+        print(ebit)
         #print("EPS: \n")
         # print(eps)
         if int(float(eps[-1])) >= 0:
@@ -187,14 +194,24 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
         # 3. Growth in operating income per fully diluted share (ΔOI/FDS) > Inflation% (say 3%)
         # 4. Growth in free cash flow per fully diluted share (ΔFCF/FDS) > Inflation% (say 3%)
         # 5. Growth in book value per fully diluted share (ΔBV/FDS) >  Inflation% (say 3%)
+        bank = 0
         if allData[3]:
             #print (allData[3])
             for i in range(0, len(allData[3])):
                 if i >= 10:
                     break
-                oiGrowth.append(allData[3][i]["operatingIncomeGrowth"])
-                fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
-                bvGrowth.append(allData[3][i]["bookValueperShareGrowth"])
+                # print(allData[3][i])
+                if (allData[3][i]["operatingIncomeGrowth"] > 0):
+                    oiGrowth.append(allData[3][i]["operatingIncomeGrowth"])
+                    fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
+                    bvGrowth.append(allData[3][i]["bookValueperShareGrowth"])
+                else:
+                    oiGrowth.append(allData[3][i]["netIncomeGrowth"])
+                    fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
+                    bvGrowth.append(allData[3][i]["assetGrowth"])
+                    if (bank != 1):
+                        bank = 1
+
         else:
             print("Delta Operating Income data not available")
 
@@ -202,6 +219,8 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
         print(" - ", oiGrowth[:5])
         print(" - ", fcfGrowth[:5])
         print(" - ", bvGrowth[:5])
+        if (bank == 1):
+            print("* Bank? Using EBT instead of OI, Net Income Growth instead of OI Growth and Total Asset Growth instead of Book Value Growth.")
         # inflation is the name of my threshold
         if all(x > inflation for x in oiGrowth[:5]):
             final_oiGrowth_companies.append(comp1)
@@ -297,25 +316,19 @@ def areEqual(arr1, arr2, n, m):
     return True
 
 
+def get_env_var(i):
+    try:
+        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'][i // 50]
+        return os.getenv("MY_VAR_" + letter)
+    except IndexError:
+        return "demo"
+
+
 for i in range(0, len(mySymbols)):
     try:
-        if i < 50:
-            my_value_a = os.getenv("MY_VAR_A")
-        elif i >= 50 and i < 100:
-            my_value_a = os.getenv("MY_VAR_B")
-        elif i >= 100 and i < 150:
-            my_value_a = os.getenv("MY_VAR_C")
-        elif i >= 150 and i < 200:
-            my_value_a = os.getenv("MY_VAR_D")
-        elif i >= 200 and i < 250:
-            my_value_a = os.getenv("MY_VAR_E")
-        elif i >= 250 and i < 300:
-            my_value_a = os.getenv("MY_VAR_F")
-        elif i >= 300 and i < 350:
-            my_value_a = os.getenv("MY_VAR_G")
-        else:
-            my_value_a = "demo"
+        my_value_a = get_env_var(i)
         #my_value_a = "demo"
+        #my_value_a =  os.getenv("MY_VAR_H")
         url_is_y = (
             "https://financialmodelingprep.com/api/v3/financials/income-statement/"
             + mySymbols[i]
@@ -377,11 +390,11 @@ print("List of companies meeting the FCFROCE threshold (8%): ")
 print(final_fcfroce_companies)
 print("List of companies meeting the FCFROCE threshold (8%), and its average FCFROCE for last 5 years: ")
 print(sorted(avg_fcfroce_dict.items(), key=lambda x: x[1], reverse=True))
-print("List of companies meeting the threshold (>inflation) for Operating Income growth over the last 5 years.")
+print("List of companies meeting the threshold (>inflation) each year for Operating Income growth for the last 5 years.")
 print(final_oiGrowth_companies)
-print("List of companies meeting the threshold (>inflation) for FCF growth over the last 5 years.")
+print("List of companies meeting the threshold (>inflation) each year for FCF growth for the last 5 years.")
 print(final_fcfGrowth_companies)
-print("List of companies meeting the threshold (>inflation) for Book Value growth over the last 5 years.")
+print("List of companies meeting the threshold (>inflation) each year for Book Value growth for the last 5 years.")
 print(final_bvGrowth_companies)
 print("List of companies meeting the DTE threshold of <2")
 print(dte_dict)
