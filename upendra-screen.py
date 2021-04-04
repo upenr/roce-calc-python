@@ -36,9 +36,9 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here
-mySymbols = ['JPM']
+mySymbols = ['JPM', 'GOOG', 'BAC', 'IBM']
 #cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
-              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
+#              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 roce_dict = {}
 fcfroce_dict = {}
 sort_dict = {}
@@ -201,7 +201,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
                 if i >= 10:
                     break
                 # print(allData[3][i])
-                if (allData[3][i]["operatingIncomeGrowth"] > 0):
+                if (float(allData[3][i]["operatingIncomeGrowth"]) != 0.0):
                     oiGrowth.append(allData[3][i]["operatingIncomeGrowth"])
                     fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
                     bvGrowth.append(allData[3][i]["bookValueperShareGrowth"])
@@ -396,7 +396,7 @@ print("List of companies meeting the threshold (>inflation) each year for FCF gr
 print(final_fcfGrowth_companies)
 print("List of companies meeting the threshold (>inflation) each year for Book Value growth for the last 5 years.")
 print(final_bvGrowth_companies)
-print("List of companies meeting the DTE threshold of <2")
+print("List of companies meeting the DTE threshold of <3")
 print(dte_dict)
 print("List of companies meeting 3, 4, 5 and 6 metrics shown in the 4 lines below.")
 mapper = {1: final_roce_companies, 2: final_fcfroce_companies, 3: final_oiGrowth_companies,
