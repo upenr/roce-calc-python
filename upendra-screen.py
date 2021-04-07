@@ -36,8 +36,8 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here
-mySymbols = ['JPM', 'GOOG', 'BAC', 'IBM']
-#cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
+mySymbols = ['MMM', 'ABT', 'ABBV', 'ABMD', 'ACN', 'ATVI', 'ADBE', 'AMD', 'AAP', 'AES', 'AFL', 'A', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALXN', 'ALGN', 'ALLE', 'LNT', 'ALL', 'GOOG', 'MO', 'AMZN', 'AMCR', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'ADI', 'ANSS', 'ANTM', 'AON', 'AOS', 'APA', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ANET', 'AJG', 'AIZ', 'T', 'ATO', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BKR', 'BLL', 'BAC', 'BK', 'BAX', 'BDX', 'BRK-B', 'BBY', 'BIO', 'BIIB', 'BLK', 'BA', 'BKNG', 'BWA', 'BXP', 'BSX', 'BMY', 'AVGO', 'BR', 'BF-B', 'CHRW', 'COG', 'CDNS', 'CZR', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CARR', 'CTLT', 'CAT', 'CBOE', 'CBRE', 'CDW', 'CE', 'CNC', 'CNP', 'CERN', 'CF', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'COP', 'ED', 'STZ', 'COO', 'CPRT', 'GLW', 'CTVA', 'COST', 'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DAL', 'XRAY', 'DVN', 'DXCM', 'FANG', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG', 'DLTR', 'D', 'DPZ', 'DOV', 'DOW', 'DTE', 'DUK', 'DRE', 'DD', 'DXC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ENPH', 'ETR', 'EOG', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ETSY', 'EVRG', 'ES', 'RE', 'EXC', 'EXPE', 'EXPD', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX', 'FIS', 'FITB', 'FE', 'FRC', 'FISV', 'FLT', 'FLIR', 'FMC', 'F', 'FTNT', 'FTV', 'FBHS', 'FOXA', 'FOX', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT', 'GNRC', 'GD', 'GE', 'GIS', 'GM', 'GPC', 'GILD', 'GL', 'GPN', 'GS', 'GWW', 'HAL', 'HBI', 'HIG', 'HAS', 'HCA', 'PEAK', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HFC', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HWM', 'HPQ', 'HUM', 'HBAN', 'HII', 'IEX', 'IDXX', 'INFO', 'ITW', 'ILMN', 'INCY', 'IR', 'INTC', 'ICE', 'IBM', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IPGP', 'IQV', 'IRM', 'JKHY', 'J', 'JBHT', 'SJM', 'JNJ', 'JCI', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'KEYS', 'KMB', 'KIM', 'KMI', 'KLAC', 'KHC', 'KR', 'LB', 'LHX', 'LH', 'LRCX', 'LW', 'LVS', 'LEG', 'LDOS', 'LEN', 'LLY', 'LNC', 'LIN', 'LYV', 'LKQ', 'LMT', 'L', 'LOW', 'LUMN', 'LYB', 'MTB', 'MRO', 'MPC', 'MKTX', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MKC', 'MXIM', 'MCD', 'MCK', 'MDT', 'MRK', 'MET', 'MTD', 'MGM', 'MCHP', 'MU', 'MSFT', 'MAA', 'MHK', 'TAP', 'MDLZ', 'MPWR', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MSCI', 'NDAQ', 'NTAP', 'NFLX', 'NWL', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NSC', 'NTRS', 'NOC', 'NLOK', 'NCLH', 'NOV', 'NRG', 'NUE', 'NVDA', 'NVR', 'NXPI', 'ORLY', 'OXY', 'ODFL', 'OMC', 'OKE', 'ORCL', 'OTIS', 'PCAR', 'PKG', 'PH', 'PAYX', 'PAYC', 'PYPL', 'PENN', 'PNR', 'PBCT', 'PEP', 'PKI', 'PRGO', 'PFE', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'POOL', 'PPG', 'PPL', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'RL', 'RJF', 'RTX', 'O', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'ROL', 'ROP', 'ROST', 'RCL', 'SPGI', 'CRM', 'SBAC', 'SLB', 'STX', 'SEE', 'SRE', 'NOW', 'SHW', 'SPG', 'SWKS', 'SNA', 'SO', 'LUV', 'SWK', 'SBUX', 'STT', 'STE', 'SYK', 'SIVB', 'SYF', 'SNPS', 'SYY', 'TMUS', 'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'TDY', 'TFX', 'TER', 'TSLA', 'TXN', 'TXT', 'TMO', 'TJX', 'TSCO', 'TT', 'TDG', 'TRV', 'TRMB', 'TFC', 'TWTR', 'TYL', 'TSN', 'UDR', 'ULTA', 'USB', 'UAA', 'UA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UHS', 'UNM', 'VLO', 'VAR', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VFC', 'VIAC', 'VTRS', 'V', 'VNO', 'VMC', 'WRB', 'WAB', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WST', 'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYNN']
+# cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 roce_dict = {}
 fcfroce_dict = {}
@@ -46,7 +46,6 @@ avg_roce_dict = {}
 avg_fcfroce_dict = {}
 negative_roce_companies = []
 data_unavailable_companies = []
-data_available_companies = []
 positive_eps_companies = []
 final_roce_companies = []
 final_fcfroce_companies = []
@@ -110,8 +109,8 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
                             eps.append(value)
 
         #print (datesIncome)
-        print("EBIT: \n")
-        print(ebit)
+        #print("EBIT: \n")
+        # print(ebit)
         #print("EPS: \n")
         # print(eps)
         if int(float(eps[-1])) >= 0:
@@ -200,8 +199,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
             for i in range(0, len(allData[3])):
                 if i >= 10:
                     break
-                # print(allData[3][i])
-                if (float(allData[3][i]["operatingIncomeGrowth"]) != 0.0):
+                if (float(allData[3][0]["operatingIncomeGrowth"]) != 0.0 and float(allData[3][0]["bookValueperShareGrowth"]) != 0.0):
                     oiGrowth.append(allData[3][i]["operatingIncomeGrowth"])
                     fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
                     bvGrowth.append(allData[3][i]["bookValueperShareGrowth"])
@@ -220,7 +218,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
         print(" - ", fcfGrowth[:5])
         print(" - ", bvGrowth[:5])
         if (bank == 1):
-            print("* Bank? Using EBT instead of OI, Net Income Growth instead of OI Growth and Total Asset Growth instead of Book Value Growth.")
+            print("* Using EBT instead of OI, Net Income Growth instead of OI Growth and Total Asset Growth instead of Book Value Growth.")
         # inflation is the name of my threshold
         if all(x > inflation for x in oiGrowth[:5]):
             final_oiGrowth_companies.append(comp1)
@@ -265,6 +263,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5):
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
         print(template.format(type(ex).__name__, ex.args))
         traceback.print_exc()
+        data_unavailable_companies.append(comp1)
         print("***********************************************************************************************************")
         pass
 
@@ -318,7 +317,7 @@ def areEqual(arr1, arr2, n, m):
 
 def get_env_var(i):
     try:
-        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'][i // 50]
+        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'][i // 50]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"
@@ -328,7 +327,7 @@ for i in range(0, len(mySymbols)):
     try:
         my_value_a = get_env_var(i)
         #my_value_a = "demo"
-        #my_value_a =  os.getenv("MY_VAR_H")
+        #my_value_a =  os.getenv("MY_VAR_K")
         url_is_y = (
             "https://financialmodelingprep.com/api/v3/financials/income-statement/"
             + mySymbols[i]
@@ -382,11 +381,13 @@ for i in range(0, len(mySymbols)):
     continue
 # print output here
 print("\n*************************************************RESULTS***************************************************\n")
-print("List of companies meeting the ROCE threshold (11%): ")
+print ("Data unavailable companies:")
+print(data_unavailable_companies)
+print("List of companies meeting the ROCE threshold (11%) every year for the last 5 years: ")
 print(final_roce_companies)
 print("List of companies meeting the ROCE threshold (11%), and its average ROCE for last 5 years: ")
 print(sorted(avg_roce_dict.items(), key=lambda x: x[1], reverse=True))
-print("List of companies meeting the FCFROCE threshold (8%): ")
+print("List of companies meeting the FCFROCE threshold (8%) every year for the last 5 years: ")
 print(final_fcfroce_companies)
 print("List of companies meeting the FCFROCE threshold (8%), and its average FCFROCE for last 5 years: ")
 print(sorted(avg_fcfroce_dict.items(), key=lambda x: x[1], reverse=True))
