@@ -10,17 +10,17 @@ from os import environ
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-dowSymbols = ['MSFT','GOOGL','FB','TSM','NVDA','ADBE']
+mySymbols = ['SII', 'OTCM', 'HRZN', 'JMSB', 'FDUS', 'TCPC', 'MRCC', 'WHF', 'CSHX', 'SPNT', 'FRBA', 'PFHD', 'ALTA', 'PVBC', 'PJT', 'BTBT', 'BRMK', 'CCB', 'PLMR', 'WTRE', 'RRBI', 'SPFI', 'PBFS', 'PROS', 'CFB', 'OPRT', 'HBT', 'CCAP', 'STEP', 'HMPT', 'AIR', 'CVLG', 'CYD', 'GBX', 'SHYF', 'YELL', 'ICTSF', 'XEBEF', 'BEEM', 'PYR', 'NETI', 'CVEO', 'DNOW', 'VRTV', 'ATTO', 'GP', 'NISN', 'BUSXD', 'CTOS', 'KULR', 'PAE', 'ALTG', 'HYFM', 'ZIM', 'ABST', 'CSVI', 'HVBTF', 'QTRHF', 'POETF', 'PKKFF', 'WRAP', 'RPAY', 'GDYN', 'CTSDF', 'CMBM', 'DCBO', 'ETWO', 'EBON', 'IBEX', 'MAXN', 'MASS', 'ATUSF', 'BCEKF', 'BUROF', 'CCF', 'MTA', 'JAGGF', 'ESKYF', 'NUPMF', 'BNAUF', 'SGSVF', 'TPRFF']
 threshold = 30  # Enter percentage you want stock price to be above 52 week low
 final_companies = []
 discount_dict = {}
 
-for i in range(0, len(dowSymbols)):  # len(dowSymbols
+for i in range(0, len(mySymbols)):  # len(mySymbols
     try:
-        my_value_c = os.getenv("MY_VAR_C")
+        my_value_c = os.getenv("MY_VAR_K")
         url = (
             "https://financialmodelingprep.com/api/v3/quote/"
-            + dowSymbols[i]
+            + mySymbols[i]
             + "?apikey="
             + my_value_c
         )
@@ -53,7 +53,7 @@ for i in range(0, len(dowSymbols)):  # len(dowSymbols
                 )
             )
             if discount1 <= discount2:  # and discount1 < (threshold*100)
-                discount_dict[dowSymbols[i]] = []
+                discount_dict[mySymbols[i]] = []
                 # final_companies.append(symbol)
                 discount_dict.setdefault(symbol, []).append(round(discount1, 2))
             print("******************************")
