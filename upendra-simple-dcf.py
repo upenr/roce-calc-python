@@ -1,3 +1,6 @@
+#Author: Upendra Rajan
+#This makes 3 API calls per company listed in mySymbols
+
 from os import environ
 import requests
 import json
@@ -34,7 +37,7 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upendra: Enter your list of symbols here
-mySymbols = ['GOOG', 'ADBE', 'BABA']
+mySymbols = ['JNJ', 'UNH', 'PFE', 'ABT', 'TMO', 'ABBV', 'LLY', 'DHR', 'MRK', 'MDT']
 # cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 data_unavailable_companies = []
@@ -55,8 +58,8 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         discount_rate = 0.04 # 0.04 means 4%. Change it to anything you like.
         cfg_y1_y5 = 0.10 # This is expected cash flow growth for years 1 to 5 in a normal scenario.
         cfg_y6_y10 = 0.08 # This is expected cash flow growth for years 6 to 10 in a normal scenario.
-        bc_cfg_y1_y5 = 0.25 # This is expected cash flow growth for years 1 to 5 in the best case scenario. 
-        bc_cfg_y6_y10 = 0.20 # This is expected cash flow growth for years 6 to 10 in the best case scenario.
+        bc_cfg_y1_y5 = 0.20 # This is expected cash flow growth for years 1 to 5 in the best case scenario. 
+        bc_cfg_y6_y10 = 0.15 # This is expected cash flow growth for years 6 to 10 in the best case scenario.
         wc_cfg_y1_y5 = 0.04 # This is expected cash flow growth for years 1 to 5 in the worst case scenario. 
         wc_cfg_y6_y10 = 0.02 # This is expected cash flow growth for years 6 to 10  in the worst case scenario.
         generated_cash = [] # This will contain ten years' generated cash flow.
@@ -192,11 +195,11 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         print ("Average intrinsic value over the three scenarios:")
         print (avg_intrinsic_price)
         print ("Applying margin of safety of {a}".format(a = mos))
-        print (avg_intrinsic_price*mos)
+        print (round(avg_intrinsic_price*mos, 2))
         if (share_price < avg_intrinsic_price):
             intrinsic_price_meeting_companies[comp1] = avg_intrinsic_price
         if (share_price < (avg_intrinsic_price*mos)):
-            mos_meeting_companies[comp1] = intrinsic_price*mos
+            mos_meeting_companies[comp1] = round(avg_intrinsic_price*mos, 2)
         print("***********************************************************************************************************")
 
     except Exception as ex:
@@ -205,6 +208,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         traceback.print_exc()
         data_unavailable_companies.append(comp1)
         print("***********************************************************************************************************")
+        pass
 
     return
 
@@ -220,7 +224,7 @@ def get_positive(val1):
 
 def get_env_var(i):
     try:
-        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][i // 50]
+        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][i // 82]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"

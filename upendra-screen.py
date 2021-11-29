@@ -1,3 +1,6 @@
+#Author: Upendra Rajan
+#This makes 5 API calls per company listed in mySymbols
+
 from os import environ
 import requests
 import json
@@ -36,9 +39,10 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here
-mySymbols = ['USLM', 'VHI', 'ROGFF', 'ZEUS', 'FSM', 'GAU', 'KOP']
+mySymbols = ['JNJ', 'UNH', 'PFE', 'ABT', 'TMO', 'ABBV', 'LLY', 'DHR', 'MRK', 'MDT']
 # cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
+#dowSymbols = ['MMM', 'AMGN', 'AAPL', 'BA', 'CAT', 'CVX', 'CSCO', 'KO', 'DOW', 'GS', 'HD', 'HON', 'IBM', 'INTC', 'JNJ', 'JPM', 'MCD', 'MRK', 'MSFT', 'NKE', 'PG', 'CRM', 'TRV', 'UNH', 'VZ', 'V', 'WBA', 'WMT', 'DIS']
 roce_dict = {}
 fcfroce_dict = {}
 sort_dict = {}

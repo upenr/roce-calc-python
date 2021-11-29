@@ -1,3 +1,6 @@
+#Author: Upendra Rajan
+#This makes 1 API call per company listed in mySymbols
+
 import requests
 import json
 import logging
@@ -10,14 +13,14 @@ from os import environ
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-mySymbols = ['SII', 'OTCM', 'HRZN', 'JMSB', 'FDUS', 'TCPC', 'MRCC', 'WHF', 'CSHX', 'SPNT', 'FRBA', 'PFHD', 'ALTA', 'PVBC', 'PJT', 'BTBT', 'BRMK', 'CCB', 'PLMR', 'WTRE', 'RRBI', 'SPFI', 'PBFS', 'PROS', 'CFB', 'OPRT', 'HBT', 'CCAP', 'STEP', 'HMPT', 'AIR', 'CVLG', 'CYD', 'GBX', 'SHYF', 'YELL', 'ICTSF', 'XEBEF', 'BEEM', 'PYR', 'NETI', 'CVEO', 'DNOW', 'VRTV', 'ATTO', 'GP', 'NISN', 'BUSXD', 'CTOS', 'KULR', 'PAE', 'ALTG', 'HYFM', 'ZIM', 'ABST', 'CSVI', 'HVBTF', 'QTRHF', 'POETF', 'PKKFF', 'WRAP', 'RPAY', 'GDYN', 'CTSDF', 'CMBM', 'DCBO', 'ETWO', 'EBON', 'IBEX', 'MAXN', 'MASS', 'ATUSF', 'BCEKF', 'BUROF', 'CCF', 'MTA', 'JAGGF', 'ESKYF', 'NUPMF', 'BNAUF', 'SGSVF', 'TPRFF']
+mySymbols = ['JNJ', 'UNH', 'PFE', 'ABT', 'TMO', 'ABBV', 'LLY', 'DHR', 'MRK', 'MDT']
 threshold = 30  # Enter percentage you want stock price to be above 52 week low
 final_companies = []
 discount_dict = {}
 
 for i in range(0, len(mySymbols)):  # len(mySymbols
     try:
-        my_value_c = os.getenv("MY_VAR_K")
+        my_value_c = os.getenv("MY_VAR_A")
         url = (
             "https://financialmodelingprep.com/api/v3/quote/"
             + mySymbols[i]
