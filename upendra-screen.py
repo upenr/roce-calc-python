@@ -39,7 +39,7 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here
-mySymbols = ['JNJ', 'UNH', 'PFE', 'ABT', 'TMO', 'ABBV', 'LLY', 'DHR', 'MRK', 'MDT']
+mySymbols = ['ATVI', 'AAP', 'AMD', 'AMG', 'APD', 'AME', 'APH', 'AON', 'AAPL', 'ATR', 'ANET', 'ATO', 'AZO', 'BAX', 'BKNG', 'SAM', 'CE', 'CVX', 'CHWY', 'CSCO', 'CCOI', 'CNS', 'COP', 'GLW', 'CRH', 'CRWD', 'CFR', 'FANG', 'DFS', 'EW', 'EA', 'EOG', 'EQIX', 'XOM', 'FFIV', 'FMC', 'FTV', 'BEN', 'GE', 'HAL', 'HES', 'HFC', 'HRL', 'TWNK', 'HUM', 'IEX', 'IDXX', 'ITW', 'ILMN', 'PODD', 'JHX', 'JHG', 'KMB', 'LH', 'LVS', 'LYV', 'LULU', 'MTB', 'MANH', 'MMC', 'MLM', 'MTCH', 'MTD', 'MS', 'NEE', 'OKTA', 'OMC', 'ORLY', 'PCAR', 'PLTR', 'PAYC', 'PCTY', 'PXD', 'PGR', 'RMD', 'RNG', 'RHI', 'RBLX', 'RKT', 'SLB', 'SHW', 'SIRI', 'SWKS', 'SO', 'SSNC', 'TTWO', 'TSLA', 'IPG', 'KR', 'TSCO', 'ULTA', 'UNH', 'VLO', 'VFC', 'VNOM', 'VMC', 'WMG', 'WEC', 'WPP', 'WRB', 'ZS']
 # cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 #dowSymbols = ['MMM', 'AMGN', 'AAPL', 'BA', 'CAT', 'CVX', 'CSCO', 'KO', 'DOW', 'GS', 'HD', 'HON', 'IBM', 'INTC', 'JNJ', 'JPM', 'MCD', 'MRK', 'MSFT', 'NKE', 'PG', 'CRM', 'TRV', 'UNH', 'VZ', 'V', 'WBA', 'WMT', 'DIS']
@@ -321,7 +321,7 @@ def areEqual(arr1, arr2, n, m):
 
 def get_env_var(i):
     try:
-        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][i // 50]
+        letter = ['K', 'L', 'F', 'B', 'C', 'D', 'E', 'H', 'I', 'J', 'A', 'G'][i // 50]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"

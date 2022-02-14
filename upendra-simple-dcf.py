@@ -2,6 +2,7 @@
 #This makes 3 API calls per company listed in mySymbols
 
 from os import environ
+from datetime import datetime
 import requests
 import json
 import re
@@ -14,6 +15,21 @@ import sys
 import os
 from dotenv import load_dotenv
 import traceback
+import sqlite3
+
+dbase = sqlite3.connect('stock-dcf-data.db') # Open a database File
+cursor = dbase.cursor()
+print ('Database opened')
+print ('Cursor created')
+
+dbase.execute(''' CREATE TABLE IF NOT EXISTS dcf_analysis_upen(
+    DATE TIMESTAMP NOT NULL,
+    NAME TEXT NOT NULL UNIQUE,
+    CURRENTPRICE INT NULL, 
+    DCFPRICE INT NULL,    
+    DISCOUNT INT NULL) ''')
+
+print ('Table created')
 
 load_dotenv()
 
@@ -37,7 +53,7 @@ init(convert=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upendra: Enter your list of symbols here
-mySymbols = ['JNJ', 'UNH', 'PFE', 'ABT', 'TMO', 'ABBV', 'LLY', 'DHR', 'MRK', 'MDT']
+mySymbols = ['AAPL', 'MSFT', 'GOOG', 'GOOGL', 'AMZN', 'TSLA', 'BRK.B', 'NVDA', 'FB', 'V', 'UNH', 'JPM', 'JNJ', 'BAC', 'PG', 'WMT', 'HD', 'MA', 'XOM', 'PFE', 'DIS', 'CVX', 'KO', 'ABBV', 'AVGO', 'ADBE', 'WFC', 'PEP', 'CSCO', 'COST', 'ACN', 'LLY', 'TMO', 'ABT', 'NKE', 'CMCSA', 'VZ', 'ORCL', 'CRM', 'DHR', 'QCOM', 'INTC', 'MS', 'UPS', 'MCD', 'MRK', 'NFLX', 'SCHW', 'T', 'TXN', 'PM', 'TMUS', 'AMD', 'INTU', 'LOW', 'UNP', 'AXP', 'NEE', 'BMY', 'RTX', 'PYPL', 'MDT', 'CVS', 'C', 'HON', 'AMGN', 'AMAT', 'BA', 'GS', 'BLK', 'NOW', 'COP', 'IBM', 'DE', 'EL', 'PLD', 'AMT', 'ANTM', 'SBUX', 'CHTR', 'CAT', 'GE', 'BKNG', 'LMT', 'ISRG', 'TGT', 'MU', 'SPGI', 'SYK', 'ZTS', 'MDLZ', 'MMM', 'MO', 'BX', 'CB', 'CME', 'PNC', 'ADP', 'USB', 'SNOW', 'TFC', 'TJX', 'LRCX', 'TEAM', 'DUK', 'GILD', 'MMC', 'BDX', 'CCI', 'CSX', 'CI', 'HCA', 'SHW', 'UBER', 'GM', 'ICE', 'F', 'SO', 'ITW', 'EW', 'FIS', 'NSC', 'CL', 'COF', 'FISV', 'MRNA', 'EOG', 'MRVL', 'REGN', 'D', 'PSA', 'AON', 'FDX', 'EQIX', 'FCX', 'MCO', 'BSX', 'ATVI', 'PGR', 'ETN', 'VRTX', 'WM', 'KLAC', 'GD', 'NOC', 'MET', 'EMR', 'RIVN', 'APD', 'ILMN', 'VMW', 'MAR', 'HUM', 'XLNX', 'NXPI', 'ADSK', 'SLB', 'KDP', 'ECL', 'PXD', 'FTNT', 'PANW', 'BK', 'SCCO', 'AIG', 'NEM', 'CNC', 'SNPS', 'MPC', 'IQV', 'JCI', 'INFO', 'CTSH', 'SQ', 'ROP', 'APH', 'DG', 'SPG', 'WDAY', 'MSCI', 'PRU', 'MNST', 'DOW', 'CMG', 'IDXX', 'STZ', 'AEP', 'BAX', 'PAYX', 'KMB', 'ADI', 'DELL', 'SRE', 'AFL', 'MCHP', 'DXCM', 'A', 'LHX', 'ADM', 'WBA', 'ORLY', 'ALGN', 'CDNS', 'ZM', 'KHC', 'HLT', 'DD', 'TRV', 'GPN', 'HSY', 'LULU', 'MCK', 'SYY', 'DLR', 'EXC', 'CARR', 'HPQ', 'AZO', 'GIS', 'CTAS', 'RSG', 'MSI', 'KKR', 'PH', 'DDOG', 'EBAY', 'KMI', 'ZS', 'PSX', 'CRWD', 'EA', 'TT', 'APTV', 'OXY', 'CTVA', 'SIVB', 'YUM', 'XEL', 'PPG', 'STT', 'WMB', 'GLW', 'DFS', 'ODFL', 'VLO', 'TDG', 'RMD', 'TSN', 'SBAC', 'ALL', 'MTD', 'LVS', 'WELL', 'OTIS', 'AMP', 'CBRE', 'DVN', 'NET', 'TTD', 'AVB', 'TROW', 'ROST', 'DASH', 'NUE', 'LYB', 'PEG', 'TWLO', 'EQR', 'IFF', 'FITB', 'BIIB', 'ROK', 'AJG', 'KR', 'MTCH', 'U', 'VEEV', 'PCAR', 'LSXMA', 'LSXMK', 'FWONK', 'FWONA', 'CMI', 'VRSK', 'WY', 'DLTR', 'SPOT', 'BF.B', 'BF.A', 'AME', 'KEYS', 'DHI', 'FAST', 'CPRT', 'FRC', 'ARE', 'ED', 'GFS', 'BLL', 'PCG', 'WST', 'TWTR', 'NDAQ', 'ES', 'ABC', 'ANSS', 'WEC', 'MDB', 'LNG', 'HAL', 'EFX', 'OKTA', 'HES', 'ON', 'EXPE', 'BKR', 'WTW', 'OKE', 'AWK', 'LEN.B', 'LEN', 'DAL', 'CSGP', 'LUV', 'O', 'ALB', 'SWK', 'EXR', 'MKC', 'EPAM', 'CERN', 'ZBRA', 'LBRDA', 'LBRDK', 'LH', 'LYV', 'NTRS', 'SIRI', 'HRL', 'PLTR', 'SGEN', 'CDW', 'BILL', 'CCL', 'INVH', 'TSCO', 'DOCU', 'GWW', 'ZBH', 'VMC', 'VFC', 'MAA', 'IT', 'KEY', 'HIG', 'GRMN', 'HUBS', 'BBY', 'CHD', 'SYF', 'VRSN', 'URI', 'DOV', 'FOX', 'FOXA', 'RJF', 'MLM', 'PKI', 'FTV', 'STE', 'RF', 'SWKS', 'CFG', 'MTB', 'EIX', 'FANG', 'DTE', 'HBAN', 'VIACA', 'VIAC', 'FE', 'AVTR', 'IR', 'MGM', 'PPL', 'SUI', 'AEE', 'RCL', 'HPE', 'DRE', 'ETR', 'HZNP', 'PAYC', 'ENPH', 'COO', 'ESS', 'K', 'SSNC', 'ROKU', 'PFG', 'VTR', 'SBNY', 'FLT', 'WAT', 'JBHT', 'NTAP', 'ULTA', 'CLR', 'YUMC', 'TDY', 'TRU', 'TYL', 'TTWO', 'CINF', 'TER', 'BRO', 'MPWR', 'SPLK', 'OMC', 'BIO', 'EXPD', 'GPC', 'AKAM', 'DRI', 'CMS', 'POOL', 'ACGL', 'NVR', 'VTRS', 'ETSY', 'GNRC', 'CZR', 'CTLT', 'HOLX', 'CTRA', 'IP', 'KMX', 'BXP', 'VICI', 'ALNY', 'ENTG', 'CG', 'MOH', 'TRMB', 'NLOK', 'PEAK', 'AMCR', 'CNP', 'AGR', 'NUAN', 'PODD', 'UDR', 'BR', 'CLX', 'CRL', 'CE', 'ALLY', 'WAB', 'RPRX', 'MKL', 'XYL', 'CPT', 'WDC', 'BMRN', 'HEI', 'HEI.A', 'MOS', 'DISH', 'CAG', 'DGX', 'MRO', 'TECH', 'LKQ', 'PINS', 'J', 'EMN', 'WRB', 'DPZ', 'UAL', 'FDS', 'TXT', 'BEN', 'BBWI', 'CF', 'AVY', 'UI', 'TFX', 'BURL', 'IPG', 'CEG', 'ROL', 'AES', 'LPLA', 'L', 'KIM', 'PWR', 'IEX', 'INCY', 'DISCK', 'DISCA', 'EVRG', 'CAH', 'FMC', 'QRVO', 'LNT', 'ATO', 'CCK', 'HWM', 'SJM', 'EQH', 'LYFT', 'FNF', 'MAS', 'AAP', 'ELS', 'ABMD', 'PKG', 'TRGP', 'EXAS', 'RNG', 'PTC', 'MKTX', 'WPC', 'BG', 'NWS', 'NWSA', 'RHI', 'FICO', 'NDSN', 'OLPX', 'BLDR', 'ARES', 'ACI', 'DT', 'AA', 'IRM', 'LNC', 'HAS', 'PLUG', 'WLK', 'JLL', 'AMH', 'HST', 'LUMN', 'CPB', 'MPW', 'CMA', 'CNA', 'JKHY', 'CBOE', 'MASI', 'PHM', 'CTXS', 'EWBC', 'MORN', 'FBHS', 'GGG', 'ZEN', 'WHR', 'FFIV', 'GDDY', 'STLD', 'WRK', 'LDOS', 'REG', 'Z', 'ZG', 'WOLF', 'CDAY', 'ELAN', 'TDOC', 'AAL', 'APA', 'UHAL', 'PCTY', 'AOS', 'CSL', 'WSM', 'FND', 'XRAY', 'CGNX', 'W', 'WTRG', 'PTON', 'CONE', 'UHS', 'CHRW', 'SNA', 'DVA', 'QGEN', 'RE', 'CUBE', 'JNPR', 'ZION', 'NI', 'LSI', 'IAC', 'RPM', 'MTN', 'AFG', 'ALLE', 'REXR', 'TPR', 'RRX', 'MIDD', 'NLY', 'BKI', 'BSY', 'BRKR', 'RGEN', 'IVZ', 'SCI', 'VST', 'WYNN', 'CNXC', 'TREX', 'ACM', 'GLPI', 'WSO', 'GL', 'BWA', 'DAR', 'GLOB', 'MHK', 'TAP', 'HSIC', 'CLVT', 'WAL', 'DOX', 'TTC', 'HUBB', 'RS', 'CLF', 'CPRI', 'PNR', 'SNX', 'LEA', 'ZNGA', 'COUP', 'CIEN', 'AXON', 'LII', 'BAH', 'NRG', 'LAMR', 'GXO', 'FHN', 'FIVE', 'ANET', 'AGCO', 'AVLR', 'ARMK', 'NWL', 'LW', 'SEE', 'AZPN', 'LAD', 'JEF', 'FRT', 'DKNG', 'SYNH', 'AIZ', 'GME', 'KNX', 'CABO', 'DXC', 'Y', 'OC', 'G', 'RL', 'CFR', 'ST', 'UTHR', 'UPST', 'TW', 'RH', 'JBL', 'FIVN', 'PBCT', 'PCOR', 'ARW', 'JAZZ', 'TXG', 'ESTC', 'PEN', 'OGN', 'KSS', 'PENN', 'WMS', 'MKSI', 'VRT', 'ERIE', 'BERY', 'USFD', 'DNB', 'OLN', 'CHDN', 'IPGP', 'UA', 'UAA', 'SEIC', 'SITE', 'NVCR', 'MANH', 'DECK', 'SF', 'AIRC', 'UGI', 'WH', 'STOR', 'CBSH', 'FAF', 'PEGA', 'BFAM', 'CHH', 'TPL', 'GWRE', 'SMAR', 'ITT', 'ORI', 'EQT', 'HUN', 'AGL', 'PAG', 'CACC', 'TPX', 'PSTG', 'PNW', 'XPO', 'BLD', 'VNO', 'MAT', 'FR', 'VOYA', 'FSLR', 'COTY', 'KRC', 'DBX', 'PLNT', 'BYD', 'TNDM', 'RGA', 'OSK', 'NBIX', 'LECO', 'ATR', 'SNV', 'GH', 'PNFP', 'BRX', 'NNN', 'CVNA', 'COLD', 'EEFT', 'CHE', 'AGNC', 'OGE', 'WU', 'SMG', 'HII', 'WEX', 'BPOP', 'GNTX', 'BC', 'WWD', 'DKS', 'NXST', 'ALK', 'BOKF', 'TWKS', 'PII', 'IBKR', 'VAC', 'ACC', 'PLTK', 'PVH', 'STWD', 'OLED', 'GMED', 'OMF', 'AN', 'NVST', 'NYT', 'FCNCA', 'LITE', 'PPC', 'PB', 'PLAN', 'ATUS', 'NTRA', 'NVAX', 'WIX', 'HTA', 'CASY', 'TOL', 'RGLD', 'AZTA', 'SRPT', 'RNR', 'AXTA', 'MTZ', 'OHI', 'INFA', 'DCI', 'NLSN', 'AYI', 'HOG', 'POST', 'COLM', 'LFUS', 'COHR', 'GPS', 'X', 'OPEN', 'SKX', 'SHC', 'NOV', 'EHC', 'CHNG', 'LPX', 'JHG', 'IAA', 'CR', 'EXEL', 'PRI', 'VVV', 'BEPC', 'LSTR', 'CFX', 'MAN', 'NVT', 'NTNX', 'AMG', 'CACI', 'YETI', 'ADT', 'ESI', 'FLO', 'REYN', 'MRTX', 'OZK', 'PACW', 'HFC', 'MDU', 'CC', 'WTFC', 'GPK', 'INGR', 'NCR', 'SRC', 'UNM', 'SLM', 'CUZ', 'EXP', 'AMBP', 'HBI', 'QS', 'ALGM', 'SON', 'IART', 'WBS', 'ASH', 'DEI', 'TDC', 'NFG', 'THO', 'SRCL', 'VSCO', 'RYN', 'MSA', 'IDA', 'NYCB', 'CW', 'NATI', 'HHC', 'CLH', 'RUN', 'SPR', 'TNL', 'TMX', 'FCN', 'EVR', 'LEG', 'MCW', 'MTG', 'DTM', 'AZEK', 'NEWR', 'WEN', 'DLB', 'PRGO', 'TKR', 'CDK', 'NCLH', 'RARE', 'THG', 'NRZ', 'JBLU', 'DRVN', 'SLG', 'UNVR', 'H', 'CRUS', 'PYCR', 'AL', 'IONS', 'SLGN', 'ACHC', 'TFSL', 'AXS', 'CHGG', 'SAIC', 'NFE', 'BHF', 'MCFE', 'ICUI', 'LAZ', 'AWI', 'VMI', 'VNT', 'HE', 'HLF', 'PK', 'DV', 'SEB', 'UMPQ', 'AMED', 'CHPT', 'MNDT', 'HXL', 'GTES', 'SAM', 'PINC', 'FL', 'FLS', 'WOOF', 'HAYW', 'CERT', 'HIW', 'FNB', 'NCNO', 'JAMF', 'MSP', 'FRPT', 'BWXT', 'ALSN', 'HRB', 'QDEL', 'AVT', 'R', 'OSH', 'CRI', 'AGO', 'VIRT', 'MRVI', 'SIX', 'CNM', 'SWCH', 'XRX', 'KEX', 'MSM', 'LESL', 'JWN', 'FHB', 'SPB', 'KD', 'TRIP', 'HPP', 'ADS', 'STNE', 'JBGS', 'CVAC', 'BOH', 'MSGS', 'FSLY', 'KMPR', 'DSEY', 'EPR', 'HAIN', 'LOPE', 'LZ', 'AYX', 'NEU', 'DCT', 'FIGS', 'WTM', 'SABR', 'VSAT', 'FTDR', 'TSP', 'MRCY', 'OLLI', 'MCY', 'QRTEA', 'FOUR', 'CPA', 'IOVA', 'AI', 'SAGE', 'GO', 'SNDR', 'ADPT', 'WWE', 'SPCE', 'SGFY', 'DH', 'EVBG', 'SWI', 'VMEO', 'NABL', 'NKTR', 'COMM', 'LMND', 'BYND', 'RKT', 'SKLZ', 'SHLS', 'SLVM', 'VRM', 'ONL', 'FLNC', 'LYLT', 'PSFE', 'UWMC', 'GOCO']
 # cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 data_unavailable_companies = []
@@ -55,13 +71,13 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         cce = []
         tcl = []
         ocf = []
-        discount_rate = 0.04 # 0.04 means 4%. Change it to anything you like.
-        cfg_y1_y5 = 0.10 # This is expected cash flow growth for years 1 to 5 in a normal scenario.
-        cfg_y6_y10 = 0.08 # This is expected cash flow growth for years 6 to 10 in a normal scenario.
+        discount_rate = 0.05 # 0.04 means 4%. Change it to anything you like.
+        cfg_y1_y5 = 0.15 # This is expected cash flow growth for years 1 to 5 in a normal scenario.
+        cfg_y6_y10 = 0.10 # This is expected cash flow growth for years 6 to 10 in a normal scenario.
         bc_cfg_y1_y5 = 0.20 # This is expected cash flow growth for years 1 to 5 in the best case scenario. 
-        bc_cfg_y6_y10 = 0.15 # This is expected cash flow growth for years 6 to 10 in the best case scenario.
-        wc_cfg_y1_y5 = 0.04 # This is expected cash flow growth for years 1 to 5 in the worst case scenario. 
-        wc_cfg_y6_y10 = 0.02 # This is expected cash flow growth for years 6 to 10  in the worst case scenario.
+        bc_cfg_y6_y10 = 0.16     # This is expected cash flow growth for years 6 to 10 in the best case scenario.
+        wc_cfg_y1_y5 = 0.05 # This is expected cash flow growth for years 1 to 5 in the worst case scenario. 
+        wc_cfg_y6_y10 = 0.03 # This is expected cash flow growth for years 6 to 10  in the worst case scenario.
         generated_cash = [] # This will contain ten years' generated cash flow.
         bc_generated_cash = []
         wc_generated_cash = []
@@ -194,6 +210,17 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         avg_intrinsic_price = round(((wc_intrinsic_price+intrinsic_price+bc_intrinsic_price)/3), 2)
         print ("Average intrinsic value over the three scenarios:")
         print (avg_intrinsic_price)
+
+        if avg_intrinsic_price > 0:
+            dbase.execute("INSERT OR REPLACE INTO dcf_analysis_upen (DATE,NAME,CURRENTPRICE,DCFPRICE,DISCOUNT) \
+            VALUES (?,?,?,?,?)", (datetime.today(),comp1,share_price,max(0,avg_intrinsic_price),round(((avg_intrinsic_price-share_price)/avg_intrinsic_price),2)));
+            dbase.commit()
+
+        else:
+            dbase.execute("INSERT OR REPLACE INTO dcf_analysis_upen (DATE,NAME,CURRENTPRICE,DCFPRICE,DISCOUNT) \
+            VALUES (?,?,?,?,?)", (datetime.today(),comp1,share_price,max(0,avg_intrinsic_price),None));
+            dbase.commit()
+
         print ("Applying margin of safety of {a}".format(a = mos))
         print (round(avg_intrinsic_price*mos, 2))
         if (share_price < avg_intrinsic_price):
@@ -224,7 +251,7 @@ def get_positive(val1):
 
 def get_env_var(i):
     try:
-        letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][i // 82]
+        letter = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'B'][i // 82]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"
@@ -259,7 +286,7 @@ for i in range(0, len(mySymbols)):
         # print(i,'.',mySymbols[i],'Yearly:')
         print("%d. %s Yearly:" % (i, mySymbols[i]))
 
-        upendra_simple_dcf(mySymbols[i], url_bs_y, url_cfs_y, url_quote)
+        upendra_simple_dcf( mySymbols[i], url_bs_y, url_cfs_y, url_quote)
 
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"

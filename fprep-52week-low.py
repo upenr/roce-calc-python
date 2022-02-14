@@ -13,14 +13,21 @@ from os import environ
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-mySymbols = ['JNJ', 'UNH', 'PFE', 'ABT', 'TMO', 'ABBV', 'LLY', 'DHR', 'MRK', 'MDT']
+mySymbols = ['EW', 'ORLY', 'ULTA', 'ILMN', 'PGR', 'UNH', 'SAM', 'CSCO', 'SWKS', 'TTWO', 'HRL', 'ATVI', 'RMD', 'TSCO', 'IEX', 'ANET', 'EA', 'MANH', 'AZO', 'SHW', 'CNS', 'FFIV', 'PAYC', 'CCOI', 'AME', 'IDXX', 'AMD', 'RHI', 'APH']
 threshold = 30  # Enter percentage you want stock price to be above 52 week low
 final_companies = []
 discount_dict = {}
 
-for i in range(0, len(mySymbols)):  # len(mySymbols
+def get_env_var(i):
     try:
-        my_value_c = os.getenv("MY_VAR_A")
+        letter = ['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][i // 250]
+        return os.getenv("MY_VAR_" + letter)
+    except IndexError:
+        return "demo"
+
+for i in range(0, len(mySymbols)):  # len(mySymbols)
+    try:
+        my_value_c = get_env_var(i)
         url = (
             "https://financialmodelingprep.com/api/v3/quote/"
             + mySymbols[i]
