@@ -5,6 +5,7 @@ These are value investing related Python scripts I wrote to search and filter st
 ## Working Python scripts relying on Financial Modeling Prep 
 
 - `upendra-screen` - My six-step screen that programmatically determines ratios mentioned in Professor Kenneth Jeffrey Marshall's book [Good Stocks Cheap](https://www.amazon.com/Good-Stocks-Cheap-Confidence-Outperformance/dp/125983607X)
+- `upendra-simple-dcf` - Calculates present value of future cash flow using the DCF model. Inputs include discount rate, cash flow growth in best, worst and normal scenarios, margin of safety and more.
 - `fprep-basic` - Get started by making a basic Financial Modeling Prep call, view the output and extract a value you like
 - `fprep-roce_best` - Calculations for getting Return on Capital Employed (ROCE) of any company that meets a threshold along with other metrics like average ROCE over the years and my own magic number to compute ROCE growth, with output sorted in descending order
 - `fprep-52week-low` - Identifies companies that are close to their 52 week lows, meeting a threshold, with output sorted from closest to low
@@ -27,6 +28,7 @@ These are value investing related Python scripts I wrote to search and filter st
 ## Built using 🧰
 
 - [Python](https://python.org/)
+- [SQLite3](https://docs.python.org/3/library/sqlite3.html)
 - [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 - [LXML](https://lxml.de)
 - Data from [Financial Modeling Prep](https://financialmodelingprep.com) and [Yahoo Finance](https://finance.yahoo.com)
