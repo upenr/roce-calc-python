@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 import time
 from urllib.request import urlopen
 
-dbase = sqlite3.connect('stock-dcf-data.db')  # Open a database File
+dbase = sqlite3.connect('stock-dcf-terminal.db')  # Open a database File
 cursor = dbase.cursor()
 print('Database opened')
 print('Cursor created')
@@ -25,9 +25,14 @@ dbase.execute(''' CREATE TABLE IF NOT EXISTS dcf_analysis_upen(
     DCFPRICE INT NULL,    
     DISCOUNTINPERCENT INT NULL,
     YEARLOW INT NULL,
-    YEARHIGH INT NULL) ''')
+    YEARHIGH INT NULL,
+    MARKETCAP INT NULL) ''')
 
-print('Table created')
+dbase.execute(''' CREATE TABLE IF NOT EXISTS data_unavailable_companies(
+    DATE TIMESTAMP NOT NULL,
+    TICKER TEXT NOT NULL UNIQUE) ''')
+
+print('Tables created')
 
 load_dotenv()
 
@@ -51,7 +56,7 @@ sys.stdout = Unbuffered(sys.stdout)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upendra: Enter your list of symbols here
-mySymbols = ['RICK', 'BFIN']
+mySymbols = ['EW', 'PKG', 'GOOG', 'ACN', 'MTD', 'DPZ', 'FTNT', 'ZTS', 'IEX', 'TTWO', 'CHD', 'LEN', 'PH', 'INTU', 'MPWR', 'SBAC', 'FFIV', 'CTAS', 'GRMN', 'EA', 'MKTX', 'MSCI', 'CPRT', 'ROL', 'ADBE', 'GNRC', 'ANET', 'AMD', 'SNA', 'VRTX', 'NOW', 'MNST', 'VRSK', 'WST', 'NVDA', 'BRO', 'FAST', 'GOOGL', 'NVR', 'ABMD', 'ALGN', 'CDNS', 'UNH', 'TMO', 'CRM', 'CRL', 'EPAM', 'MSFT']
 # cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 data_unavailable_companies = []
@@ -66,15 +71,17 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         total_cash = 0
         wc_total_cash = 0
         bc_total_cash = 0
+        ltgr = 0.02  # Long Term Growth Rate, 10 years to infinity, in decimals - 2% would be 0.02
+        wacc = 0.06  # Weighted Average Cost of Capital or WACC in decimals - 2% would be 0.02
         datesBalance = []
         cce = []
-        tcl = []
+        total_liabilities = []
         ocf = []
-        discount_rate = 0.05  # 0.04 means 4%. Change it to anything you like.
+        discount_rate = 0.06  # 0.04 means 4%. Change it to anything you like.
         # This is expected cash flow growth for years 1 to 5 in a normal scenario.
-        cfg_y1_y5 = 0.15
+        cfg_y1_y5 = 0.14
         # This is expected cash flow growth for years 6 to 10 in a normal scenario.
-        cfg_y6_y10 = 0.10
+        cfg_y6_y10 = 0.11
         # This is expected cash flow growth for years 1 to 5 in the best case scenario.
         bc_cfg_y1_y5 = 0.20
         # This is expected cash flow growth for years 6 to 10 in the best case scenario.
@@ -95,10 +102,14 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         mos = 0.5  # Enter your margin of safety here. 0.5 indicates 50%.
         year_list = []
         intrinsic_price = 0.0
+        wc_terminal_value = 0.0
+        terminal_value = 0.0  # Normal case terminal value
+        bc_terminal_value = 0.0
         share_price = 0
         year_high = 0
         year_low = 0
-        
+        share_name = ""
+
         for url in urls:
             request = urlopen(url)
             time.sleep(1)
@@ -117,15 +128,15 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         # 1. Get operating cash flow, shares outstanding, current cash and equivalents and total current liabilities
         if allData[0]:
             datesBalance.append(allData[0][0]["date"])
-            cce.append(allData[0][0]["cashAndCashEquivalents"]) 
-            tcl.append(allData[0][0]["totalCurrentLiabilities"])
+            cce.append(allData[0][0]["cashAndCashEquivalents"])
+            total_liabilities.append(allData[0][0]["totalLiabilities"])
         else:
             print("An error occurred: %s") % (data["error"]["description"])
-                           
+
         print(
             "The latest yearly Cash and Cash Equivalent: {cce}.".format(cce=cce[0]))
         print(
-            "The latest yearly Total Current Liabilities: {tcl}.".format(tcl=tcl[0]))
+            "The latest yearly Total Liabilities: {total_liabilities}.".format(total_liabilities=total_liabilities[0]))
         if allData[1]:
             #print (allData[2])
             for i in range(0, len(allData[1])):
@@ -173,12 +184,25 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         for ele in range(1, len(bc_discounted_cashflow)):
             bc_total_cash = bc_total_cash + bc_discounted_cashflow[ele]
 
+        # Terminal value formula from Wall Street Prep
+        wc_terminal_value = (
+            (wc_discounted_cashflow[-1]*(1+ltgr))/(discount_rate-ltgr))
+        # Terminal value formula from Wall Street Prep
+        terminal_value = (
+            (discounted_cashflow[-1]*(1+ltgr))/(discount_rate-ltgr))
+        # Terminal value formula from Wall Street Prep
+        bc_terminal_value = (
+            (bc_discounted_cashflow[-1]*(1+ltgr))/(discount_rate-ltgr))
+        pv_terminal_value = round(((wc_terminal_value/((1+wacc)**10))+(terminal_value/((1+wacc)**10))+(
+            bc_terminal_value/((1+wacc)**10)))/3, 2)  # Present value of terminal value is the average of 3 cases
+
         if allData[2]:
             sharesOut = allData[2][0]["sharesOutstanding"]
             share_price = allData[2][0]["price"]
             share_name = allData[2][0]["name"]
             year_high = allData[2][0]["yearHigh"]
             year_low = allData[2][0]["yearLow"]
+            market_cap = allData[2][0]["marketCap"]
             print(
                 "The current number of shares outstanding is {0:.2f}.".format(
                     sharesOut
@@ -186,8 +210,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
             )
             print("The current price is {0:.2f}.".format(share_price))
         else:
-            print("An error occurred under items 3, 4 and 5: %s") % (
-                data["error"]["description"])
+            print("An error occurred: %s") % (data["error"]["description"])
 
         print("Years:")
         print(year_list)
@@ -197,7 +220,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         wc_tcso = round(wc_total_cash/sharesOut, 2)
         bc_tcso = round(bc_total_cash/sharesOut, 2)
         ccash = round(float(cce[0])/sharesOut, 2)
-        cdebt = round(float(tcl[0])/sharesOut, 2)
+        cdebt = round(float(total_liabilities[0])/sharesOut, 2)
         print("\nWORST CASE:\n")
         print("Worst case: Generated cash over the next ten years")
         print(wc_generated_cash)
@@ -236,29 +259,40 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
             a=ccash, b=cdebt))
         bc_intrinsic_price = bc_tcso+ccash-cdebt
         print("Best case - Intrinsic value per share:")
-        print(bc_intrinsic_price)
+        print(round(bc_intrinsic_price, 2))
         print("-----------------------------------------------------------------------------------------------------------")
-        avg_intrinsic_price = round(
+        per_share_pv_terminal_value = round((pv_terminal_value/sharesOut), 2)
+        pv_of_future_cash_flows_for_10_years = round(
             ((wc_intrinsic_price+intrinsic_price+bc_intrinsic_price)/3), 2)
-        print("Average intrinsic value over the three scenarios:")
-        print(avg_intrinsic_price)
+        print("Average of ten-year cashflow based intrinsic over the three scenarios:")
+        print(pv_of_future_cash_flows_for_10_years)
+        print("Present value of terminal value per share ({a}):".format(
+            a=pv_terminal_value))
+        print(per_share_pv_terminal_value)
+        print("Final intrinsic value (Sum of 10-year cash flows and terminal value):")
+        print(per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)
+        print(
+            "Final intrinsic value with Margin of Safety of {a}:".format(a=mos))
+        final_intrinsic_value_with_mos = round(
+            (mos * (per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)), 2)
+        print(final_intrinsic_value_with_mos)
 
-        if avg_intrinsic_price > 0:
-            dbase.execute("INSERT OR REPLACE INTO dcf_analysis_upen (DATE,TICKER,NAME,CURRENTPRICE,DCFPRICE,DISCOUNTINPERCENT,YEARLOW,YEARHIGH) \
-            VALUES (?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, max(0, avg_intrinsic_price), round(((avg_intrinsic_price-share_price)/avg_intrinsic_price), 2), year_low, year_high))
+        if pv_of_future_cash_flows_for_10_years > 0:
+            dbase.execute("INSERT OR REPLACE INTO dcf_analysis_upen (DATE,TICKER,NAME,CURRENTPRICE,DCFPRICE,DISCOUNTINPERCENT,YEARLOW,YEARHIGH,MARKETCAP) \
+            VALUES (?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, max(0, final_intrinsic_value_with_mos), round(((final_intrinsic_value_with_mos-share_price)/final_intrinsic_value_with_mos), 2), year_low, year_high, market_cap))
             dbase.commit()
 
         else:
-            dbase.execute("INSERT OR REPLACE INTO dcf_analysis_upen (DATE,TICKER,NAME,CURRENTPRICE,DCFPRICE,DISCOUNTINPERCENT,YEARLOW,YEARHIGH) \
-            VALUES (?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, max(0, avg_intrinsic_price), None, year_low, year_high))
+            dbase.execute("INSERT OR REPLACE INTO dcf_analysis_upen (DATE,TICKER,NAME,CURRENTPRICE,DCFPRICE,DISCOUNTINPERCENT,YEARLOW,YEARHIGH,MARKETCAP) \
+            VALUES (?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, max(0, final_intrinsic_value_with_mos), None, year_low, year_high, market_cap))
             dbase.commit()
 
-        print("Applying margin of safety of {a}".format(a=mos))
-        print(round(avg_intrinsic_price*mos, 2))
-        if (share_price < avg_intrinsic_price):
-            intrinsic_price_meeting_companies[comp1] = avg_intrinsic_price
-        if (share_price < (avg_intrinsic_price*mos)):
-            mos_meeting_companies[comp1] = round(avg_intrinsic_price*mos, 2)
+        if (share_price < (per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)):
+            intrinsic_price_meeting_companies[comp1] = (
+                per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)
+        if (share_price < (final_intrinsic_value_with_mos)):
+            mos_meeting_companies[comp1] = round(
+                final_intrinsic_value_with_mos, 2)
         print("***********************************************************************************************************")
 
     except Exception as ex:
@@ -285,7 +319,8 @@ def get_positive(val1):
 
 def get_env_var(i):
     try:
-        letter = ['A', 'B', 'H', 'I', 'M', 'K', 'L', 'J', 'F', 'G', 'C', 'D', 'E'][i // 82]
+        letter = ['I', 'B', 'H', 'A', 'M', 'K', 'L',
+                  'J', 'F', 'G', 'C', 'D', 'E'][i // 82]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"
@@ -337,3 +372,7 @@ print(intrinsic_price_meeting_companies)
 print("Companies meeting your margin of safety, shown here with the safest price to pay:")
 print(mos_meeting_companies)
 print("\n******************************************ENF OF RESULTS***************************************************\n")
+for item in data_unavailable_companies:
+    dbase.execute("INSERT OR REPLACE INTO data_unavailable_companies (DATE, TICKER) \
+            VALUES (?,?)", (datetime.today(), item))
+dbase.commit()
