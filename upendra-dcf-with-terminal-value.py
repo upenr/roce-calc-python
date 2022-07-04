@@ -56,7 +56,7 @@ sys.stdout = Unbuffered(sys.stdout)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upendra: Enter your list of symbols here
-mySymbols = ['EW', 'PKG', 'GOOG', 'ACN', 'MTD', 'DPZ', 'FTNT', 'ZTS', 'IEX', 'TTWO', 'CHD', 'LEN', 'PH', 'INTU', 'MPWR', 'SBAC', 'FFIV', 'CTAS', 'GRMN', 'EA', 'MKTX', 'MSCI', 'CPRT', 'ROL', 'ADBE', 'GNRC', 'ANET', 'AMD', 'SNA', 'VRTX', 'NOW', 'MNST', 'VRSK', 'WST', 'NVDA', 'BRO', 'FAST', 'GOOGL', 'NVR', 'ABMD', 'ALGN', 'CDNS', 'UNH', 'TMO', 'CRM', 'CRL', 'EPAM', 'MSFT']
+mySymbols = ['TSM']
 # cacSymbols = ['MC.PA', 'SAN.PA', 'FP.PA', 'OR.PA', 'AI.PA', 'SU.PA', 'KER.PA', 'AIR.PA', 'BN.PA', 'EL.PA', 'DG.PA', 'BNP.PA', 'CS.PA', 'RI.PA', 'RMS.PA', 'VIV.PA', 'DSY.PA', 'ENGI.PA', 'LR.PA',
 #              'CAP.PA', 'SGO.PA', 'STM.PA', 'ORA.PA', 'ML.PA', 'TEP.PA', 'WLN.PA', 'VIE.PA', 'GLE.PA', 'ACA.PA', 'UG.PA', 'CA.PA', 'ALO.PA', 'MT.PA', 'HO.PA', 'ATO.PA', 'EN.PA', 'PUB.PA', 'RNO.PA', 'URW.PA']
 data_unavailable_companies = []
@@ -72,22 +72,22 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         wc_total_cash = 0
         bc_total_cash = 0
         ltgr = 0.02  # Long Term Growth Rate, 10 years to infinity, in decimals - 2% would be 0.02
-        wacc = 0.06  # Weighted Average Cost of Capital or WACC in decimals - 2% would be 0.02
+        wacc = 0.08  # Weighted Average Cost of Capital or WACC in decimals - 2% would be 0.02
         datesBalance = []
         cce = []
         total_liabilities = []
         ocf = []
-        discount_rate = 0.06  # 0.04 means 4%. Change it to anything you like.
+        discount_rate = 0.08  # 0.04 means 4%. Change it to anything you like.
         # This is expected cash flow growth for years 1 to 5 in a normal scenario.
-        cfg_y1_y5 = 0.14
+        cfg_y1_y5 = 0.10
         # This is expected cash flow growth for years 6 to 10 in a normal scenario.
-        cfg_y6_y10 = 0.11
+        cfg_y6_y10 = 0.09
         # This is expected cash flow growth for years 1 to 5 in the best case scenario.
-        bc_cfg_y1_y5 = 0.20
+        bc_cfg_y1_y5 = 0.15
         # This is expected cash flow growth for years 6 to 10 in the best case scenario.
-        bc_cfg_y6_y10 = 0.16
+        bc_cfg_y6_y10 = 0.14
         # This is expected cash flow growth for years 1 to 5 in the worst case scenario.
-        wc_cfg_y1_y5 = 0.05
+        wc_cfg_y1_y5 = 0.04
         # This is expected cash flow growth for years 6 to 10  in the worst case scenario.
         wc_cfg_y6_y10 = 0.03
         # This will contain ten years' generated cash flow.
@@ -231,7 +231,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         print("Worst case - Total cash over the next 10 years per outstanding share is: " + str(wc_tcso))
         print("Adding current cash per share {a} and subtracting current debt per share {b}.".format(
             a=ccash, b=cdebt))
-        wc_intrinsic_price = wc_tcso+ccash-cdebt
+        wc_intrinsic_price = round((wc_tcso+ccash-cdebt), 2)
         print("Worst case - Intrinsic value per share:")
         print(wc_intrinsic_price)
         print("\nNORMAL CASE:\n")
@@ -244,7 +244,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
         print("Normal case - Total cash over the next 10 years per outstanding share is: " + str(tcso))
         print("Adding current cash per share {a} and subtracting current debt per share {b}.".format(
             a=ccash, b=cdebt))
-        intrinsic_price = tcso+ccash-cdebt
+        intrinsic_price = round((tcso+ccash-cdebt),2)
         print("Normal case - Intrinsic value per share:")
         print(intrinsic_price)
         print("\nBEST CASE:\n")
@@ -270,7 +270,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
             a=pv_terminal_value))
         print(per_share_pv_terminal_value)
         print("Final intrinsic value (Sum of 10-year cash flows and terminal value):")
-        print(per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)
+        print(round ((per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years), 2))
         print(
             "Final intrinsic value with Margin of Safety of {a}:".format(a=mos))
         final_intrinsic_value_with_mos = round(
@@ -289,7 +289,7 @@ def upendra_simple_dcf(comp1, url1, url2, url3):
 
         if (share_price < (per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)):
             intrinsic_price_meeting_companies[comp1] = (
-                per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years)
+                round((per_share_pv_terminal_value+pv_of_future_cash_flows_for_10_years), 2))
         if (share_price < (final_intrinsic_value_with_mos)):
             mos_meeting_companies[comp1] = round(
                 final_intrinsic_value_with_mos, 2)
@@ -319,8 +319,8 @@ def get_positive(val1):
 
 def get_env_var(i):
     try:
-        letter = ['I', 'B', 'H', 'A', 'M', 'K', 'L',
-                  'J', 'F', 'G', 'C', 'D', 'E'][i // 82]
+        letter = ['O', 'G', 'B', 'I', 'A', 'M', 'K', 'L',
+                  'J', 'F', 'H', 'C', 'D', 'E'][i // 82]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"

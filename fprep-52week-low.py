@@ -13,14 +13,15 @@ from os import environ
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-mySymbols = ['EW', 'ORLY', 'ULTA', 'ILMN', 'PGR', 'UNH', 'SAM', 'CSCO', 'SWKS', 'TTWO', 'HRL', 'ATVI', 'RMD', 'TSCO', 'IEX', 'ANET', 'EA', 'MANH', 'AZO', 'SHW', 'CNS', 'FFIV', 'PAYC', 'CCOI', 'AME', 'IDXX', 'AMD', 'RHI', 'APH']
+mySymbols = ['HD','FB','GOOG','REGN','FOX','RHI','CMI','AMAT','FFIV','LOW','MAS','PKG','JBHT','EA','NVR','TER','CBRE','TSN','GOOGL','FOXA','EXPD','FBHS','HCA','HPQ','TXN','ACN','CSCO','AZO','CERN','PH','DGX','ALGN','CRL','ORLY','GRMN','EMR','PHM','DOV','BRO','SWKS','LEN','SNA','PM','AOS','CTSH','ZBRA']
 threshold = 30  # Enter percentage you want stock price to be above 52 week low
 final_companies = []
 discount_dict = {}
 
 def get_env_var(i):
     try:
-        letter = ['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][i // 250]
+        letter = ['O', 'G', 'B', 'I', 'A', 'M', 'K', 'L',
+                  'J', 'F', 'H', 'C', 'D', 'E'][i // 250]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"

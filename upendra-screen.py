@@ -18,22 +18,24 @@ cursor = dbase.cursor()
 print('Database opened')
 print('Cursor created')
 
-dbase.execute(''' CREATE TABLE IF NOT EXISTS six_metrics_screener_data(
-    DATE TIMESTAMP NOT NULL UNIQUE,
+dbase.execute(''' CREATE TABLE IF NOT EXISTS eight_metrics_screener_data(
+    DATE TIMESTAMP NOT NULL,
     TICKER TEXT NOT NULL,
     NAME TEXT NOT NULL,
     CURRENTPRICE INT NULL, 
     YEARLOW INT NULL,
     YEARHIGH INT NULL,
-    STATEMENTDATE TEXT NOT NULL UNIQUE,    
+    STATEMENTDATE TEXT NOT NULL,    
     ROCE INT NULL,
     FCFROCE INT NULL,
     OPERATINGINCOMEGROWTH INT NULL,
     FCFGROWTH INT NULL,
     BOOKVALUEGROWTH INT NULL,
+    GROSSMARGINGROWTH INT NULL,
     DTOERATIO INT NULL,
     TANGIBLEBVPS INT NULL,
-    SHARESOUTSTANDING INT NULL) ''')
+    SHARESOUTSTANDING INT NULL,
+    UNIQUE(TICKER, STATEMENTDATE) ON CONFLICT REPLACE) ''')
 
 dbase.execute(''' CREATE TABLE IF NOT EXISTS companies_meeting_metrics_final(
     DATE TIMESTAMP NOT NULL,
@@ -61,13 +63,12 @@ class Unbuffered:
     def flush(self):
         pass
 
-
 sys.stdout = Unbuffered(sys.stdout)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here OR uncomment the read_Data() function call, and use Sqlite DB as input.
-mySymbols = ['MMM', 'AOS', 'ABT', 'ABBV', 'ABMD', 'ACN', 'ATVI', 'ADM', 'ADBE', 'ADP', 'AAP', 'AES', 'AFL', 'A', 'AIG', 'APD', 'AKAM', 'ALK', 'ALB', 'ARE', 'ALGN', 'ALLE', 'LNT', 'ALL', 'GOOGL', 'GOOG', 'MO', 'AMZN', 'AMCR', 'AMD', 'AEE', 'AAL', 'AEP', 'AXP', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'ADI', 'ANSS', 'ANTM', 'AON', 'APA', 'AAPL', 'AMAT', 'APTV', 'ANET', 'AIZ', 'T', 'ATO', 'ADSK', 'AZO', 'AVB', 'AVY', 'BKR', 'BLL', 'BAC', 'BBWI', 'BAX', 'BDX', 'WRB', 'BRK.B', 'BBY', 'BIO', 'TECH', 'BIIB', 'BLK', 'BK', 'BA', 'BKNG', 'BWA', 'BXP', 'BSX', 'BMY', 'AVGO', 'BR', 'BRO', 'BF.B', 'CHRW', 'CDNS', 'CZR', 'CPT', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CARR', 'CTLT', 'CAT', 'CBOE', 'CBRE', 'CDW', 'CE', 'CNC', 'CNP', 'CDAY', 'CERN', 'CF', 'CRL', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'CINF', 'CTAS', 'CSCO', 'C', 'CFG', 'CTXS', 'CLX', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CAG', 'COP', 'ED', 'STZ', 'CEG', 'COO', 'CPRT', 'GLW', 'CTVA', 'COST', 'CTRA', 'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DAL', 'XRAY', 'DVN', 'DXCM', 'FANG', 'DLR', 'DFS', 'DISH', 'DIS', 'DG', 'DLTR', 'D', 'DPZ', 'DOV', 'DOW', 'DTE', 'DUK', 'DRE', 'DD', 'DXC', 'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ENPH', 'ETR', 'EOG', 'EPAM', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ETSY', 'RE', 'EVRG', 'ES', 'EXC', 'EXPE', 'EXPD', 'EXR', 'XOM', 'FFIV', 'FDS', 'FAST', 'FRT', 'FDX', 'FITB', 'FRC', 'FE', 'FIS', 'FISV', 'FLT', 'FMC', 'F', 'FTNT', 'FTV', 'FBHS', 'FOXA', 'FOX', 'BEN', 'FCX', 'AJG', 'GRMN', 'IT', 'GE', 'GNRC', 'GD', 'GIS', 'GPC', 'GILD', 'GL', 'GPN', 'GM', 'GS', 'GWW', 'HAL', 'HIG', 'HAS', 'HCA', 'PEAK', 'HSIC', 'HSY', 'HES', 'HPE', 'HLT', 'HOLX', 'HD', 'HON', 'HRL', 'HST', 'HWM', 'HPQ', 'HUM', 'HII', 'HBAN', 'IEX', 'IDXX', 'ITW', 'ILMN', 'INCY', 'IR', 'INTC', 'ICE', 'IBM', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IPGP', 'IQV', 'IRM', 'JBHT', 'JKHY', 'J', 'JNJ', 'JCI', 'JPM', 'JNPR', 'K', 'KEY', 'KEYS', 'KMB', 'KIM', 'KMI', 'KLAC', 'KHC', 'KR', 'LHX', 'LH', 'LRCX', 'LW', 'LVS', 'LDOS', 'LEN', 'LLY', 'LNC', 'LIN', 'LYV', 'LKQ', 'LMT', 'L', 'LOW', 'LUMN', 'LYB', 'MTB', 'MRO', 'MPC', 'MKTX', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MTCH', 'MKC', 'MCD', 'MCK', 'MDT', 'MRK', 'FB', 'MET', 'MTD', 'MGM', 'MCHP', 'MU', 'MSFT', 'MAA', 'MRNA', 'MHK', 'MOH', 'TAP', 'MDLZ', 'MPWR', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MSCI', 'NDAQ', 'NTAP', 'NFLX', 'NWL', 'NEM', 'NWSA', 'NWS', 'NEE', 'NLSN', 'NKE', 'NI', 'NDSN', 'NSC', 'NTRS', 'NOC', 'NLOK', 'NCLH', 'NRG', 'NUE', 'NVDA', 'NVR', 'NXPI', 'ORLY', 'OXY', 'ODFL', 'OMC', 'OKE', 'ORCL', 'OGN', 'OTIS', 'PCAR', 'PKG', 'PARA', 'PH', 'PAYX', 'PAYC', 'PYPL', 'PENN', 'PNR', 'PEP', 'PKI', 'PFE', 'PM', 'PSX', 'PNW', 'PXD', 'PNC', 'POOL', 'PPG', 'PPL', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PTC', 'PSA', 'PHM', 'PVH', 'QRVO', 'PWR', 'QCOM', 'DGX', 'RL', 'RJF', 'RTX', 'O', 'REG', 'REGN', 'RF', 'RSG', 'RMD', 'RHI', 'ROK', 'ROL', 'ROP', 'ROST', 'RCL', 'SPGI', 'CRM', 'SBAC', 'SLB', 'STX', 'SEE', 'SRE', 'NOW', 'SHW', 'SBNY', 'SPG', 'SWKS', 'SJM', 'SNA', 'SEDG', 'SO', 'LUV', 'SWK', 'SBUX', 'STT', 'STE', 'SYK', 'SIVB', 'SYF', 'SNPS', 'SYY', 'TMUS', 'TROW', 'TTWO', 'TPR', 'TGT', 'TEL', 'TDY', 'TFX', 'TER', 'TSLA', 'TXN', 'TXT', 'TMO', 'TJX', 'TSCO', 'TT', 'TDG', 'TRV', 'TRMB', 'TFC', 'TWTR', 'TYL', 'TSN', 'USB', 'UDR', 'ULTA', 'UAA', 'UA', 'UNP', 'UAL', 'UNH', 'UPS', 'URI', 'UHS', 'VLO', 'VTR', 'VRSN', 'VRSK', 'VZ', 'VRTX', 'VFC', 'VTRS', 'V', 'VNO', 'VMC', 'WAB', 'WMT', 'WBA', 'WBD', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WST', 'WDC', 'WRK', 'WY', 'WHR', 'WMB', 'WTW', 'WYNN', 'XEL', 'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION', 'ZTS']
+mySymbols = ['TSM']
 
 def read_Data():
     # from math import *
@@ -100,7 +101,6 @@ dte_dict = {}
 tbvg_dict = {}
 count_elem = {}
 
-
 def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
     try:
         dte = 0  # DebtToEquity TTM only
@@ -114,12 +114,15 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
             response = request.read()
             data = json.loads(response)
             allData.append(data)
+            request.close()
         # print(allData)
 
         # 1. Return on capital employed (ROCE) > 11% - Refer to the 'fprep-roce_best' program
         # 2. Free cash flow return on capital employed (FCFROCE) > 8%
         datesIncome = []
         datesBalance = []
+        gross_profit = []
+        revenue = []
         ta = []
         tcl = []
         ebit = []
@@ -127,6 +130,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         oiGrowth = []
         fcfGrowth = []
         bvGrowth = []
+        profit_margin = []
         eps = []
         n = 0
         m = 0
@@ -136,6 +140,10 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
             for key, value in data.items():
                 if key == "date":
                     datesIncome.append(value)
+                elif key == "revenue":
+                    revenue.append(value)
+                elif key == "grossProfit":
+                    gross_profit.append(value)
                 elif key == "operatingIncome":
                     if (float(value) == 0.0):
                         key = "incomeBeforeTax"
@@ -191,6 +199,8 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         #print (datesBalance)
         #print ("FCF values")
         # print(fcf)
+        #print ("Gross Profit: \n")
+        #print (gross_profit)
         n = len(ta)
         m = len(fcf)
 
@@ -213,6 +223,8 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
                 fcfroce_dict.setdefault(comp1, []).append(round(fcfroce, 2))
                 #print (roce_dict)
                 #print (fcfroce_dict)
+                profit_margin.append(round ((float(gross_profit[i])/float(revenue[i])), 2))
+                #print(f"Profit Margin on {datesIncome[i]}: " + str(profit_margin)+"%")
 
         else:
             print(
@@ -240,23 +252,24 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
                 if i >= 10:
                     break
                 if (float(allData[3][0]["operatingIncomeGrowth"]) != 0.0 and float(allData[3][0]["bookValueperShareGrowth"]) != 0.0):
-                    oiGrowth.append(allData[3][i]["operatingIncomeGrowth"])
-                    fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
-                    bvGrowth.append(allData[3][i]["bookValueperShareGrowth"])
+                    oiGrowth.append(round(allData[3][i]["operatingIncomeGrowth"], 2))
+                    fcfGrowth.append(round(allData[3][i]["freeCashFlowGrowth"], 2))
+                    bvGrowth.append(round(allData[3][i]["bookValueperShareGrowth"], 2))
                 else:
-                    oiGrowth.append(allData[3][i]["netIncomeGrowth"])
-                    fcfGrowth.append(allData[3][i]["freeCashFlowGrowth"])
-                    bvGrowth.append(allData[3][i]["assetGrowth"])
+                    oiGrowth.append(round (allData[3][i]["netIncomeGrowth"], 2))
+                    fcfGrowth.append(round(allData[3][i]["freeCashFlowGrowth"], 2))
+                    bvGrowth.append(round(allData[3][i]["assetGrowth"], 2))
                     if (bank != 1):
                         bank = 1
 
         else:
             print("Cash Flow Statement data not available")
 
-        print("Operating Income, Free Cash Flow, Book Value growths for last 5 years shown in the 3 lines below.")
+        print("Operating Income growth, Free Cash Flow growth, Book Value growth and Profit Margin for last 5 years are shown in the 4 lines below.")
         print(" - ", oiGrowth[:5])
         print(" - ", fcfGrowth[:5])
-        print(" - ", bvGrowth[:5])
+        print(" - ", bvGrowth[:5]) 
+        print(" - ", profit_margin[:5]) 
         if (bank == 1):
             print("* Using EBT instead of OI, Net Income Growth instead of OI Growth and Total Asset Growth instead of Book Value Growth.")
         # inflation is the name of my threshold
@@ -284,9 +297,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
             dte = allData[5][0]["debtToEquityTTM"]
             tbvps = allData[5][0]["tangibleBookValuePerShareTTM"]
             print(
-                "The current debt-to-equity ratio is {0:.2f}.".format(
-                    dte
-                )
+                "The current debt-to-equity ratio is {0:.2f}.".format(dte)
             )
             print(
                 "The current tangible book value per share TTM is {0:.2f}. Manually determine the growth.".format(
@@ -300,12 +311,14 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
                 data["error"]["description"])
 
         print("***********************************************************************************************************")
+        
+        print ("Writing to database for: " + comp1)
+        print ("Number of rows: " + str(len(datesIncome)))
         for x in range(0, len(datesIncome)):
-            dbase.execute("INSERT OR REPLACE INTO six_metrics_screener_data (DATE, TICKER, NAME, CURRENTPRICE, YEARLOW, YEARHIGH, STATEMENTDATE, ROCE, FCFROCE, OPERATINGINCOMEGROWTH, FCFGROWTH, BOOKVALUEGROWTH, DTOERATIO, TANGIBLEBVPS, SHARESOUTSTANDING) \
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, year_low, year_high, datesIncome[x], roce_dict[comp1][x], fcfroce_dict[comp1][x], oiGrowth[x], fcfGrowth[x], bvGrowth[x], dte if x == 0 else None, tbvps if x == 0 else None, sharesOut if x == 0 else None))
+            dbase.execute("INSERT OR REPLACE INTO eight_metrics_screener_data (DATE, TICKER, NAME, CURRENTPRICE, YEARLOW, YEARHIGH, STATEMENTDATE, ROCE, FCFROCE, OPERATINGINCOMEGROWTH, FCFGROWTH, BOOKVALUEGROWTH, GROSSMARGINGROWTH, DTOERATIO, TANGIBLEBVPS, SHARESOUTSTANDING) \
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, year_low, year_high, datesIncome[x], roce_dict[comp1][x], fcfroce_dict[comp1][x], oiGrowth[x], fcfGrowth[x], bvGrowth[x], profit_margin[x], round (dte, 2) if x == 0 else None, round(tbvps, 2) if x == 0 else None, sharesOut if x == 0 else None))
             dbase.commit()
             #print ("datesIncome[x]: " + str(datesIncome[x]))
-        request.close()
 
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
@@ -366,7 +379,7 @@ def areEqual(arr1, arr2, n):
 
 def get_env_var(i):
     try:
-        letter = ['I', 'K', 'J', 'F', 'G', 'C', 'D', 'E', 'N', 'L', 'A', 'B', 'H', 'M'][i // 40]
+        letter = ['O', 'C', 'D', 'E', 'L', 'J', 'F', 'I', 'B', 'H', 'A', 'K', 'G', 'M'][i // 41]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"
