@@ -68,7 +68,7 @@ sys.stdout = Unbuffered(sys.stdout)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here OR uncomment the read_Data() function call, and use Sqlite DB as input.
-mySymbols = ['TSM']
+mySymbols = ['ALK','AXP','APA','T','BBWI','BWA','CHRW','CBRE','CNC','CF','CHTR','CVX','COP','CTRA','CVS','DAL','DVN','FANG','DFS','DISH','DOW','DXC','EQT','RE','EXPE','EXPD','XOM','BEN','GM','HPE','HST','IP','LUMN','LYB','MRO','MPC','MU','MRNA','MOS','NUE','OXY','PKG','PFE','PSX','PXD','LUV','STT','STLD','SYF','TROW','TPR','TSN','UAL','URI','VZ','VTRS','WRK','WY','WHR']
 
 def read_Data():
     # from math import *
@@ -312,9 +312,13 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
 
         print("***********************************************************************************************************")
         
-        print ("Writing to database for: " + comp1)
-        print ("Number of rows: " + str(len(datesIncome)))
-        for x in range(0, len(datesIncome)):
+        #print ("Writing to database for: " + comp1)
+        #print ("Number of rows: " + str(len(datesIncome)))
+        if (len(datesIncome) > 0):
+            n=4 # Controls the number of entries in the database below
+        else:
+            n=0
+        for x in range(0, n):
             dbase.execute("INSERT OR REPLACE INTO eight_metrics_screener_data (DATE, TICKER, NAME, CURRENTPRICE, YEARLOW, YEARHIGH, STATEMENTDATE, ROCE, FCFROCE, OPERATINGINCOMEGROWTH, FCFGROWTH, BOOKVALUEGROWTH, GROSSMARGINGROWTH, DTOERATIO, TANGIBLEBVPS, SHARESOUTSTANDING) \
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, year_low, year_high, datesIncome[x], roce_dict[comp1][x], fcfroce_dict[comp1][x], oiGrowth[x], fcfGrowth[x], bvGrowth[x], profit_margin[x], round (dte, 2) if x == 0 else None, round(tbvps, 2) if x == 0 else None, sharesOut if x == 0 else None))
             dbase.commit()
@@ -363,23 +367,22 @@ def get_positive(val1):
     except ValueError:
         return False
 
-
 def areEqual(arr1, arr2, n):
     # Upen: There's some issue with the data provided. So, skipping comparison part.
-    arr1.sort()
-    arr2.sort()
+    #arr1.sort()
+    #arr2.sort()
     # Linearly compare elements
     for i in range(0, n - 1):
         if arr1[i] != arr2[i]:
             return False
-    # If all elements were tthe same, return true
+    # If all elements were the same, return true
     return True
 
 #read_Data()
 
 def get_env_var(i):
     try:
-        letter = ['O', 'C', 'D', 'E', 'L', 'J', 'F', 'I', 'B', 'H', 'A', 'K', 'G', 'M'][i // 41]
+        letter = ['O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'][i // 41]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"
