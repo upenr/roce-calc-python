@@ -12,4 +12,4 @@ node_modules
 *.json
 *.csv
 .env
-.db
+*.db

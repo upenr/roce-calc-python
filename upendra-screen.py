@@ -12,6 +12,7 @@ from datetime import datetime
 import time
 import traceback
 import sqlite3
+import sys
 
 dbase = sqlite3.connect('stock-dcf-terminal.db')  # Open a database File
 cursor = dbase.cursor()
@@ -67,13 +68,30 @@ sys.stdout = Unbuffered(sys.stdout)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# Upen: Enter your list of symbols here OR uncomment the read_Data() function call, and use Sqlite DB as input.
-mySymbols = ['ALK','AXP','APA','T','BBWI','BWA','CHRW','CBRE','CNC','CF','CHTR','CVX','COP','CTRA','CVS','DAL','DVN','FANG','DFS','DISH','DOW','DXC','EQT','RE','EXPE','EXPD','XOM','BEN','GM','HPE','HST','IP','LUMN','LYB','MRO','MPC','MU','MRNA','MOS','NUE','OXY','PKG','PFE','PSX','PXD','LUV','STT','STLD','SYF','TROW','TPR','TSN','UAL','URI','VZ','VTRS','WRK','WY','WHR']
+# Upen: Enter your list of symbols here OR uncomment the read_Data() function call and use Sqlite DB as input.
+mySymbols = ['AMZN', 'GOOG']
+
+# Read the symbols from mySymbols-1.txt
+#with open('mySymbols-1.txt', 'r', encoding='utf-8') as file:
+ #   data = file.read()
+
+# Remove quotes and split by comma to form a list
+#mySymbols = [symbol.strip().strip('"') for symbol in data.split(',')]
+
+# Now you can use mySymbols in your program
+#print(mySymbols)  # Example usage
 
 def read_Data():
     # from math import *
     data = cursor.execute(
-        ''' SELECT TICKER FROM dcf_analysis_upen WHERE DISCOUNTINPERCENT BETWEEN 0.5 AND 1 ORDER BY DISCOUNTINPERCENT DESC''')
+        ''' 
+        SELECT TICKER 
+        FROM dcf_analysis_upen 
+        WHERE DISCOUNTINPERCENT BETWEEN 0.5 AND 1 
+        ORDER BY DISCOUNTINPERCENT DESC 
+        LIMIT 500
+        '''
+    )
     for record in data:
         #print ("'"+str(record[0])+"'"+'\n')
         mySymbols.append(str(record[0]))
@@ -95,7 +113,7 @@ final_fcfGrowth_companies = []
 final_bvGrowth_companies = []
 threshold_roce = 10  # Set your ROCE % threshold
 threshold_fcfroce = 7  # Set your FCFROCE % threshold
-inflation = 0.05  # Inflation set to 5%
+inflation = 0.02  # Inflation set to 2%
 threshold_dte = 2  # Set your Debt-to-Equity threshold
 dte_dict = {}
 tbvg_dict = {}
@@ -103,6 +121,7 @@ count_elem = {}
 
 def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
     try:
+        time.sleep(0.5)
         dte = 0  # DebtToEquity TTM only
         n = 0
         m = 0
@@ -110,7 +129,6 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         allData = []
         for url in urls:
             request = urlopen(url)
-            time.sleep(1)
             response = request.read()
             data = json.loads(response)
             allData.append(data)
@@ -155,21 +173,26 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
                 elif key == "eps":
                     eps.append(value)
 
-        """         if allData[0]:
-            datesIncome.append(allData[0][0]["date"])
-            ebit.append(allData[0][0]["operatingIncome"] if allData[0][0]["operatingIncome"]
-                        > 0 else allData[0][0]["incomeBeforeTax"])  # if = 0, make it earnings before tax
-            eps.append(allData[0][0]["eps"]) """
-
+        #         if allData[0]:
+        #    datesIncome.append(allData[0][0]["date"])
+        #    ebit.append(allData[0][0]["operatingIncome"] if allData[0][0]["operatingIncome"]
+        #                > 0 else allData[0][0]["incomeBeforeTax"])  # if = 0, make it earnings before tax
+        #    eps.append(allData[0][0]["eps"]) """
+        print("Income statement:")
         print(datesIncome)
         #print("EBIT: \n")
         # print(ebit)
         #print("EPS: \n")
         # print(eps)
-        if int(float(eps[-1])) >= 0:
-            positive_eps_companies.append(comp1)
+        #if int(float(eps[-1])) >= 0:
+        #    positive_eps_companies.append(comp1)
         # Second Page
         # print (url2)
+        if eps:  # Check if eps is not empty
+            if int(float(eps[-1])) >= 0:
+                positive_eps_companies.append(comp1)
+        else:
+            print(f"Warning: 'eps' list is empty for {comp1}")
 
         for data in allData[1]:
             #print ("Data: " + str(data))
@@ -195,8 +218,8 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         #print (ta)
         #print ("TCL: \n")
         #print (tcl)
-        #print ("Dates Balance")
-        #print (datesBalance)
+        print ("Dates Balance")
+        print (datesBalance)
         #print ("FCF values")
         # print(fcf)
         #print ("Gross Profit: \n")
@@ -204,34 +227,74 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         n = len(ta)
         m = len(fcf)
 
-        if areEqual(datesIncome, datesBalance, n):
+        # if areEqual(datesIncome, datesBalance, n):
+        #     print("******************************************DATA AVAILABLE***************************************************")
+        #     for i in range(0, (lambda: m, lambda: n)[m > n]()):
+        #         if i >= 10:
+        #             break
+        #         # print("Values")
+        #         roce = (100 * float(re.sub("[^\\d\\.\\-]", "", str(ebit[i]))) / (float((re.sub(
+        #             "[^\\d\\.\\-]", "", str(ta[i])))) - float((re.sub("[^\\d\\.\\-]", "", str(tcl[i]))))))
+        #         fcfroce = ((100 * fcf[i]) / (float((re.sub("[^\\d\\.\\-]", "", str(
+        #             ta[i])))) - float((re.sub("[^\\d\\.\\-]", "", str(tcl[i]))))))
+        #         print(
+        #             f"Inc. Stmt Date: {datesIncome[i]}, Balance Sheet Date: {datesBalance[i]}, ROCE on that date was {roce:.2f}% and FCFROCE on that date was {fcfroce:.2f}%")
+        #         print("EBIT: " + str(ebit[i]))
+        #         print("TA: " + str(ta[i]))
+        #         print("TCL: " + str(tcl[i]) + "\n")
+        #         roce_dict.setdefault(comp1, []).append(round(roce, 2))
+        #         fcfroce_dict.setdefault(comp1, []).append(round(fcfroce, 2))
+        #         #print (roce_dict)
+        #         #print (fcfroce_dict)
+        #         profit_margin.append(round ((float(gross_profit[i])/float(revenue[i])), 2))
+        #         #print(f"Profit Margin on {datesIncome[i]}: " + str(profit_margin)+"%")
+
+        # else:
+        #     print(
+        #         "The income statement and balance sheet data do not have the same dates."
+        #     )
+        
+        # Find common dates
+        common_dates = list(set(datesIncome) & set(datesBalance))
+        common_dates.sort(reverse=True)  # Sort in descending order for consistency
+
+        if common_dates:  # If there are matching dates, proceed
             print("******************************************DATA AVAILABLE***************************************************")
-            for i in range(0, (lambda: m, lambda: n)[m > n]()):
-                if i >= 10:
-                    break
-                # print("Values")
-                roce = (100 * float(re.sub("[^\\d\\.\\-]", "", str(ebit[i]))) / (float((re.sub(
-                    "[^\\d\\.\\-]", "", str(ta[i])))) - float((re.sub("[^\\d\\.\\-]", "", str(tcl[i]))))))
-                fcfroce = ((100 * fcf[i]) / (float((re.sub("[^\\d\\.\\-]", "", str(
-                    ta[i])))) - float((re.sub("[^\\d\\.\\-]", "", str(tcl[i]))))))
-                print(
-                    f"Inc. Stmt Date: {datesIncome[i]}, Balance Sheet Date: {datesBalance[i]}, ROCE on that date was {roce:.2f}% and FCFROCE on that date was {fcfroce:.2f}%")
-                #print("EBIT: " + str(ebit[i]))
-                #print("TA: " + str(ta[i]))
-                #print("TCL: " + str(tcl[i]) + "\n")
-                roce_dict.setdefault(comp1, []).append(round(roce, 2))
-                fcfroce_dict.setdefault(comp1, []).append(round(fcfroce, 2))
-                #print (roce_dict)
-                #print (fcfroce_dict)
-                profit_margin.append(round ((float(gross_profit[i])/float(revenue[i])), 2))
-                #print(f"Profit Margin on {datesIncome[i]}: " + str(profit_margin)+"%")
+    
+        for i in range(min(10, len(common_dates))):  # Process up to 10 matching dates
+            date = common_dates[i]
+        
+            # Find the correct index of this date in each list
+            idx_income = datesIncome.index(date) if date in datesIncome else None
+            idx_balance = datesBalance.index(date) if date in datesBalance else None
 
-        else:
-            print(
-                "The income statement and balance sheet data do not have the same dates."
-            )
+            # Ensure valid indices before calculation
+            if idx_income is not None and idx_balance is not None:
+                try:
+                    roce = (100 * float(re.sub("[^\\d\\.\\-]", "", str(ebit[idx_income]))) /
+                            (float(re.sub("[^\\d\\.\\-]", "", str(ta[idx_balance]))) -
+                            float(re.sub("[^\\d\\.\\-]", "", str(tcl[idx_balance])))))
 
-        if roce_dict[comp1][:5]:
+                    fcfroce = (100 * fcf[idx_income] /
+                            (float(re.sub("[^\\d\\.\\-]", "", str(ta[idx_balance]))) -
+                            float(re.sub("[^\\d\\.\\-]", "", str(tcl[idx_balance])))))
+
+                    print(f"Inc. Stmt Date: {date}, Balance Sheet Date: {date}, "
+                        f"ROCE: {roce:.2f}% and FCFROCE: {fcfroce:.2f}%")
+
+                    roce_dict.setdefault(comp1, []).append(round(roce, 2))
+                    fcfroce_dict.setdefault(comp1, []).append(round(fcfroce, 2))
+
+                    profit_margin.append(round(float(gross_profit[idx_income]) / float(revenue[idx_income]), 2))
+
+                except (IndexError, ValueError, ZeroDivisionError) as e:
+                    print(f"Error processing data for {date}: {e}")
+
+            else:
+                print("The income statement and balance sheet data do not have matching dates.")
+
+
+        if comp1 in roce_dict and roce_dict[comp1][:5]:
             if all(x > threshold_roce for x in roce_dict[comp1][:5]):
                 final_roce_companies.append(comp1)
             if [sum(roce_dict[comp1][:5])/5 for x in roce_dict[comp1][:5]][0] > threshold_roce:
@@ -265,7 +328,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         else:
             print("Cash Flow Statement data not available")
 
-        print("Operating Income growth, Free Cash Flow growth, Book Value growth and Profit Margin for last 5 years are shown in the 4 lines below.")
+        print("Operating Income growth, Free Cash Flow growth, Book Value growth and Profit Margin for the last 5 years are shown in the 4 lines below.")
         print(" - ", oiGrowth[:5])
         print(" - ", fcfGrowth[:5])
         print(" - ", bvGrowth[:5]) 
@@ -314,26 +377,37 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         
         #print ("Writing to database for: " + comp1)
         #print ("Number of rows: " + str(len(datesIncome)))
+        
+        min_length = min(len(datesIncome), 
+                             len(roce_dict[comp1]), 
+                             len(fcfroce_dict[comp1]), 
+                             len(oiGrowth), 
+                             len(fcfGrowth), 
+                             len(bvGrowth), 
+                             len(profit_margin))
+        
         if (len(datesIncome) > 0):
             n=4 # Controls the number of entries in the database below
         else:
             n=0
-        for x in range(0, n):
+        #for x in range(0, n):
+        #print("Minimum length:")
+        #print(min_length)
+        for x in range(min_length):
             dbase.execute("INSERT OR REPLACE INTO eight_metrics_screener_data (DATE, TICKER, NAME, CURRENTPRICE, YEARLOW, YEARHIGH, STATEMENTDATE, ROCE, FCFROCE, OPERATINGINCOMEGROWTH, FCFGROWTH, BOOKVALUEGROWTH, GROSSMARGINGROWTH, DTOERATIO, TANGIBLEBVPS, SHARESOUTSTANDING) \
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, year_low, year_high, datesIncome[x], roce_dict[comp1][x], fcfroce_dict[comp1][x], oiGrowth[x], fcfGrowth[x], bvGrowth[x], profit_margin[x], round (dte, 2) if x == 0 else None, round(tbvps, 2) if x == 0 else None, sharesOut if x == 0 else None))
             dbase.commit()
             #print ("datesIncome[x]: " + str(datesIncome[x]))
 
-    except Exception as ex:
+    except Exception as ex1:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-        print(template.format(type(ex).__name__, ex.args))
+        print(template.format(type(ex1).__name__, ex1.args))
         traceback.print_exc()
         data_unavailable_companies.append(comp1)
         print("***********************************************************************************************************")
         pass
 
-    return
-
+        return
 
 def generate_elem_count():
     result_data = []
@@ -387,12 +461,12 @@ def get_env_var(i):
     except IndexError:
         return "demo"
 
-
 for i in range(0, len(mySymbols)):
     try:
         my_value_a = get_env_var(i)
         #my_value_a = "demo"
-        #my_value_a =  os.getenv("MY_VAR_K")
+        
+        #my_value_a =  os.getenv("MY_VAR_C")
         url_is_y = (
             "https://financialmodelingprep.com/api/v3/income-statement/"
             + mySymbols[i]
@@ -434,9 +508,19 @@ for i in range(0, len(mySymbols)):
         }
         # print(i,'.',mySymbols[i],'Yearly:')
         print("%d. %s Yearly:" % (i, mySymbols[i]))
+        
+        # Record the start time
+        #start_time = time.time()
 
         upendra_metrics(mySymbols[i], url_is_y, url_bs_y,
                         url_cfs_y, url_fg, url_quote, url_metrics)
+        
+            # Record the end time
+        #end_time = time.time()
+        
+        # Calculate and print the execution time
+        #execution_time = end_time - start_time
+        #print(f"Execution time for {mySymbols[i]}: {execution_time:.2f} seconds")
 
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
@@ -444,8 +528,9 @@ for i in range(0, len(mySymbols)):
         print(message)
         traceback.print_exc()
     continue
+    
 # print output here
-print("\n*************************************************RESULTS***************************************************\n")
+print("\n**********************************RESULTS****************************************\n")
 print("Data unavailable companies:")
 print(data_unavailable_companies)
 print("List of companies meeting the ROCE threshold (11%) every year for the last 5 years: ")
@@ -471,7 +556,7 @@ print(" - ", get_from_min_match(3))
 print(" - ", get_from_min_match(4))
 print(" - ", get_from_min_match(5))
 print(" - ", get_from_min_match(6))
-print("\n******************************************ENF OF RESULTS***************************************************\n")
+print("\n****************************ENF OF RESULTS****************************************\n")
 
 metrics_matched = generate_elem_count()
 #print (metrics_matched)
