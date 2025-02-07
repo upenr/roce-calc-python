@@ -1,18 +1,25 @@
 # Author: Upendra Rajan
 # This makes 6 API calls for each company listed in mySymbols
 
+import sys
+import os
 import json
 import re
 import logging
-from urllib.request import urlopen
-import sys
-import os
-from dotenv import load_dotenv
-from datetime import datetime
 import time
 import traceback
 import sqlite3
-import sys
+from datetime import datetime
+from urllib.request import urlopen
+from dotenv import load_dotenv
+
+# Register adapters and converters for datetime handling in SQLite (Python 3.12+)
+sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())  # Store as ISO 8601 string
+# Register converter for DATETIME type (formatted to comply with Pylint)
+sqlite3.register_converter(
+    "DATETIME", 
+    lambda s: datetime.fromisoformat(s.decode())  # Convert back to datetime
+)
 
 dbase = sqlite3.connect('stock-dcf-terminal.db')  # Open a database File
 cursor = dbase.cursor()
@@ -49,17 +56,20 @@ dbase.execute(''' CREATE TABLE IF NOT EXISTS data_unavailable_companies(
 
 load_dotenv()
 
-te = open("finalScreen.txt", "a")  # File where I keep the logs
-
-
 class Unbuffered:
+    """
+    This class is used to handle unbuffered writing to both stdout 
+    and a text file. It writes data to both the terminal and 
+    'finalScreen.txt' every time something is printed to stdout.
+    """
     def __init__(self, stream):
         self.stream = stream
 
     def write(self, data):
         self.stream.write(data)
         self.stream.flush()
-        te.write(data)  # Write the data of stdout here to a text file as well
+        with open("finalScreen.txt", "a", encoding="utf-8") as te:
+            te.write(data)
 
     def flush(self):
         pass
@@ -69,7 +79,7 @@ sys.stdout = Unbuffered(sys.stdout)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 # Upen: Enter your list of symbols here OR uncomment the read_Data() function call and use Sqlite DB as input.
-mySymbols = ['AMZN', 'GOOG']
+mySymbols = ['TSLA']
 
 # Read the symbols from mySymbols-1.txt
 #with open('mySymbols-1.txt', 'r', encoding='utf-8') as file:
@@ -328,10 +338,13 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         else:
             print("Cash Flow Statement data not available")
 
-        print("Operating Income growth, Free Cash Flow growth, Book Value growth and Profit Margin for the last 5 years are shown in the 4 lines below.")
+        print("Operating Income growth for the last 5 years (newest year first):")
         print(" - ", oiGrowth[:5])
+        print("Free Cash Flow growth for the last 5 years (newest year first):")
         print(" - ", fcfGrowth[:5])
-        print(" - ", bvGrowth[:5]) 
+        print("Book Value growth for the last 5 years (newest year first):")
+        print(" - ", bvGrowth[:5])
+        print("Profit Margin for the last 5 years (newest year first):")
         print(" - ", profit_margin[:5]) 
         if (bank == 1):
             print("* Using EBT instead of OI, Net Income Growth instead of OI Growth and Total Asset Growth instead of Book Value Growth.")
