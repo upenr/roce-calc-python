@@ -1,5 +1,5 @@
 # Author: Upendra Rajan
-# This makes 6 API calls for each company listed in mySymbols
+# This makes 7 API calls for each company listed in mySymbols
 
 import sys
 import os
@@ -78,8 +78,8 @@ sys.stdout = Unbuffered(sys.stdout)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# Upen: Enter your list of symbols here OR uncomment the read_Data() function call and use Sqlite DB as input.
-mySymbols = ['TSLA']
+#upen: Enter your list of symbols here OR uncomment the read_Data() function call and use Sqlite DB as input.
+mySymbols = ['BABA','AES','AKAM','ALK','ARE','ALGN','ALL','MO','AEE','AAL','AEP','APA','AMAT','APTV','T','BBWI','WRB','BBY','BIIB','BWA','BMY','CPB','CCL','CE','CF','CRL','CHTR','CVX','CB','CI','CINF','CMS','CMCSA','CAG','COP','STZ','CTRA','CSX','DVA','DAL','XRAY','DVN','FANG','DFS','DG','DLTR','DOW','DTE','DUK','DXC','EMN','EIX','ENPH','ETR','EOG','ETSY','RE','EVRG','EXC','EXPE','XOM','FDX','FE','FLT','FMC','F','FTV','FBHS','FOXA','FOX','FCX','IT','GIS','GILD','GPN','GM','HAL','HIG','HCA','PEAK','HSIC','HES','HPE','HOLX','HRL','HST','HPQ','IPG','IVZ','IPGP','IQV','JBHT','KMB','KMI','KHC','KR','LW','LVS','LKQ','LUMN','LYB','MRO','MPC','MTCH','MRK','MGM','MHK','TAP','MOS','NWL','NEM','NCLH','NUE','OXY','OMC','OKE','OGN','PCAR','PYPL','PFE','PNW','PXD','PGR','PVH','QRVO','QCOM','RL','REGN','RHI','SLB','SEE','SWKS','SJM','SNA','SO','SYF','TMUS','TROW','TGT','TFX','TRV','TSN','UAL','UNH','UPS','URI','UHS','VLO','VZ','VTRS','WBD','WRK','WHR','WYNN','XEL']
 
 # Read the symbols from mySymbols-1.txt
 #with open('mySymbols-1.txt', 'r', encoding='utf-8') as file:
@@ -123,19 +123,19 @@ final_fcfGrowth_companies = []
 final_bvGrowth_companies = []
 threshold_roce = 10  # Set your ROCE % threshold
 threshold_fcfroce = 7  # Set your FCFROCE % threshold
-inflation = 0.02  # Inflation set to 2%
+inflation = 0.03  # Inflation set to 3%
 threshold_dte = 2  # Set your Debt-to-Equity threshold
 dte_dict = {}
 tbvg_dict = {}
 count_elem = {}
 
-def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
+def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6, url7):
     try:
         time.sleep(0.5)
         dte = 0  # DebtToEquity TTM only
         n = 0
         m = 0
-        urls = [url1, url2, url3, url4, url5, url6]
+        urls = [url1, url2, url3, url4, url5, url6, url7]
         allData = []
         for url in urls:
             request = urlopen(url)
@@ -358,33 +358,47 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
 
         # 6. Growth in tangible book value per fully diluted share (ΔTBV/FDS) > Inflation% (say 3%)
         # 7. Liabilities-to-equity ratio < 2
+        share_name = None
+        share_price = None
+        year_high = None
+        year_low = None
+        
         if allData[4]:
-            sharesOut = allData[4][0]["sharesOutstanding"]
+            # sharesOut = allData[4][0]["sharesOutstanding"]
             share_price = allData[4][0]["price"]
             share_name = allData[4][0]["name"]
             year_high = allData[4][0]["yearHigh"]
             year_low = allData[4][0]["yearLow"]
-
         else:
-            print("An error occurred under dte: %s") % (
-                data["error"]["description"])
+            # fallback values if allData[4] is empty
+            share_price = 0
+            share_name = "N/A"
+            year_high = 0
+            year_low = 0
 
         if allData[5]:
-            dte = allData[5][0]["debtToEquityTTM"]
-            tbvps = allData[5][0]["tangibleBookValuePerShareTTM"]
-            print(
-                "The current debt-to-equity ratio is {0:.2f}.".format(dte)
-            )
-            print(
-                "The current tangible book value per share TTM is {0:.2f}. Manually determine the growth.".format(
-                    tbvps)
-            )
-            if dte <= threshold_dte:
-                dte_dict.setdefault(comp1, []).append(round(dte, 2))
+            dte = allData[5][0].get("debtToEquityRatio")
+            tbvps = allData[5][0].get("tangibleBookValuePerShare")
+
+            # Safely round only if value is not None, else keep as None
+            dte_val = round(dte, 2) if dte is not None else None
+            tbvps_val = round(tbvps, 2) if tbvps is not None else None
+
+            # Append to dictionary only if dte exists and is below threshold
+            if dte_val is not None and dte_val <= threshold_dte:
+                dte_dict.setdefault(comp1, []).append(dte_val)
+
+            # Print values safely
+            print("The current debt-to-equity ratio is {0:.2f}.".format(dte_val if dte_val is not None else 0))
+            print("The current tangible book value per share TTM is {0:.2f}. Manually determine the growth.".format(tbvps_val if tbvps_val is not None else 0))
 
         else:
-            print("An error occurred under dte: %s") % (
-                data["error"]["description"])
+            print("No data available for debt-to-equity ratio or tangible book value per share.")
+
+        sharesOut = None
+        #8. Shares Outstanding
+        if allData[6] and len(allData[6]) > 0:
+            sharesOut = allData[6][0].get("outstandingShares")
 
         print("***********************************************************************************************************")
         
@@ -408,7 +422,7 @@ def upendra_metrics(comp1, url1, url2, url3, url4, url5, url6):
         #print(min_length)
         for x in range(min_length):
             dbase.execute("INSERT OR REPLACE INTO eight_metrics_screener_data (DATE, TICKER, NAME, CURRENTPRICE, YEARLOW, YEARHIGH, STATEMENTDATE, ROCE, FCFROCE, OPERATINGINCOMEGROWTH, FCFGROWTH, BOOKVALUEGROWTH, GROSSMARGINGROWTH, DTOERATIO, TANGIBLEBVPS, SHARESOUTSTANDING) \
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, year_low, year_high, datesIncome[x], roce_dict[comp1][x], fcfroce_dict[comp1][x], oiGrowth[x], fcfGrowth[x], bvGrowth[x], profit_margin[x], round (dte, 2) if x == 0 else None, round(tbvps, 2) if x == 0 else None, sharesOut if x == 0 else None))
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (datetime.today(), comp1, share_name, share_price, year_low, year_high, datesIncome[x], roce_dict[comp1][x], fcfroce_dict[comp1][x], oiGrowth[x], fcfGrowth[x], bvGrowth[x], profit_margin[x], round(dte, 2) if (x == 0 and dte is not None) else 0, round(tbvps, 2) if (x == 0 and tbvps is not None) else 0, sharesOut if x == 0 else None))
             dbase.commit()
             #print ("datesIncome[x]: " + str(datesIncome[x]))
 
@@ -469,7 +483,7 @@ def areEqual(arr1, arr2, n):
 
 def get_env_var(i):
     try:
-        letter = ['O', 'N', 'M', 'L', 'K', 'J', 'I', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'][i // 41]
+        letter = ['I', 'N', 'M', 'L', 'K', 'J', 'O', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'][i // 35]
         return os.getenv("MY_VAR_" + letter)
     except IndexError:
         return "demo"
@@ -481,39 +495,45 @@ for i in range(0, len(mySymbols)):
         
         #my_value_a =  os.getenv("MY_VAR_C")
         url_is_y = (
-            "https://financialmodelingprep.com/api/v3/income-statement/"
+            "https://financialmodelingprep.com/stable/income-statement?symbol="
             + mySymbols[i]
-            + "?apikey="
+            + "&apikey="
             + my_value_a
         )
         url_bs_y = (
-            "https://financialmodelingprep.com/api/v3/balance-sheet-statement/"
+            "https://financialmodelingprep.com/stable/balance-sheet-statement?symbol="
             + mySymbols[i]
-            + "?apikey="
+            + "&apikey="
             + my_value_a
         )
         url_cfs_y = (
-            "https://financialmodelingprep.com/api/v3/cash-flow-statement/"
+            "https://financialmodelingprep.com/stable/cash-flow-statement?symbol="
             + mySymbols[i]
-            + "?apikey="
+            + "&apikey="
             + my_value_a
         )
         url_fg = (
-            "https://financialmodelingprep.com/api/v3/financial-growth/"
+            "https://financialmodelingprep.com/stable/financial-growth?symbol="
             + mySymbols[i]
-            + "?apikey="
+            + "&apikey="
             + my_value_a
         )
         url_quote = (
-            "https://financialmodelingprep.com/api/v3/quote/"
+            "https://financialmodelingprep.com/stable/quote?symbol="
             + mySymbols[i]
-            + "?apikey="
+            + "&apikey="
             + my_value_a
         )
         url_metrics = (
-            "https://financialmodelingprep.com/api/v3/key-metrics-ttm/"
+            "https://financialmodelingprep.com/stable/ratios-ttm?symbol="
             + mySymbols[i]
-            + "?apikey="
+            + "&apikey="
+            + my_value_a
+        )
+        url_shares = (
+            "https://financialmodelingprep.com/stable/shares-float?symbol="
+            + mySymbols[i]
+            + "&apikey="
             + my_value_a
         )
         headers = {
@@ -526,7 +546,7 @@ for i in range(0, len(mySymbols)):
         #start_time = time.time()
 
         upendra_metrics(mySymbols[i], url_is_y, url_bs_y,
-                        url_cfs_y, url_fg, url_quote, url_metrics)
+                        url_cfs_y, url_fg, url_quote, url_metrics, url_shares)
         
             # Record the end time
         #end_time = time.time()
